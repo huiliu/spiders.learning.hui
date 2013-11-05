@@ -1,0 +1,35 @@
+news.ifeng.com
+
+头条
+/html/body/div[5]/div/div/div/h2/a
+/html/body/div[5]/div/div/div/h3/a
+
+要闻头条
+/html/body/div[5]/div/div[2]/ul/li/h4/a/b
+/html/body/div[5]/div/div[@class="box_02"]
+.//a
+
+大陆
+/html/body/div[5]/div/div[3]/div[2]/dl/dd/h6/a
+/html/body/div[5]/div/div[3]/ul/li/a
+
+国际
+/html/body/div[6]/div/div/div[2]/dl/dd/h6/a
+/html/body/div[6]/div/div/ul/li/a
+
+台湾
+/html/body/div[6]/div/div[3]/div[2]/dl/dd/h6/a
+/html/body/div[6]/div/div[3]/ul/li/a
+
+港澳
+/html/body/div[6]/div/div[4]/div[2]/dl/dd/h6/a
+/html/body/div[6]/div/div[4]/ul/li/a
+
+
+house.ifeng.com
+
+重磅    /html/body/div[11]/div/div/div[2]/h1/a
+头条    /html/body/div[11]/div/div[3]/ul/li/a
+
+热词    /html/body/div[11]/div[2]/div[3]/div[2]/a
+        /html/body/div[11]/div[2]/div[3]/div[2]/a/span（span无法识别）
