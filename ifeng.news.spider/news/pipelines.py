@@ -9,6 +9,7 @@ from news.dbconfig import DB_CONFIG
 
 class ifengHeadlinePipeline(object):
     def __init__(self):
+        self.tblName = "%s.ifengHeadline" % DB_CONFIG['dbName']
         self.conn = MySQLdb.connect(
                                         host=DB_CONFIG['host'],
                                         user=DB_CONFIG['user'],
@@ -22,25 +23,29 @@ class ifengHeadlinePipeline(object):
     def process_item(self, item, spider):
         """
         """
-        sql_chk = """SELECT id FROM enviroment_spider.ifengHeadline
-                                           WHERE title = '%s'""" % item['title']
+        sql_chk = """SELECT id FROM %s WHERE title = '%s'""" %\
+                                                (self.tblName, item['title'])
         self.cur.execute(sql_chk)
         if self.cur.fetchone() is not None: return item
 
-        sql = """INSERT INTO enviroment_spider.ifengHeadline VALUE (
-                                                            NULL,
-                                                            '%s',
-                                                            '%s',
-                                                            '%s',
-                                                            %d,
-                                                            '%s'
-                                                            )"""
+        sql = """INSERT INTO %s (
+                                            title,
+                                            href,
+                                            uptime,
+                                            pri
+                                ) VALUE (
+                                            '%s',
+                                            '%s',
+                                            '%s',
+                                            %d
+                                )"""
         # 使用self.execute(sql, ())时一直出错
-        self.cur.execute(sql % (item['title'],
+        self.cur.execute(sql % (
+                                self.tblName,
+                                item['title'],
                                 item['href'],
                                 item['uptime'],
-                                item['pri'],
-                                ""
+                                item['pri']
                                 )
                         )
         self.conn.commit()
