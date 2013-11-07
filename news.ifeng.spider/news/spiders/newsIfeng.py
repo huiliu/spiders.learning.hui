@@ -17,7 +17,8 @@ class NewsIfengSpider(BaseSpider):
         items = []
         timeNow = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        Get = lambda x, y : x.select(y).extract()
+        Get = lambda x, y : x.select(y).extract()[0]\
+                                    if len(x.select(y).extract()) > 0 else None
 
         def News(hxs, xpath, pri):
             for tmp in hxs.select(xpath):

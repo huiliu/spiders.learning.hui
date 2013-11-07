@@ -13,3 +13,5 @@ NEWSPIDER_MODULE = 'news.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'news (+http://www.yourdomain.com)'
+
+ITEM_PIPELINES = ['news.pipelines.ifengNewsPipeline']
