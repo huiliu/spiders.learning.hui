@@ -17,5 +17,5 @@ NEWSPIDER_MODULE = 'news.spiders'
 ITEM_PIPELINES = [
                     "news.pipelines.ifengHeadlinePipeline"
                  ]
-# LOG_LEVEL = scrapy.log.WARNING
-# LOG_FILE = '/tmp/enviroment_log'
+LOG_LEVEL = scrapy.log.WARNING
+LOG_FILE = '/tmp/enviroment_log'

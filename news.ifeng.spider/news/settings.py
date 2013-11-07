@@ -6,8 +6,9 @@
 #     http://doc.scrapy.org/topics/settings.html
 #
 
-BOT_NAME = 'news'
+import scrapy
 
+BOT_NAME = 'news'
 SPIDER_MODULES = ['news.spiders']
 NEWSPIDER_MODULE = 'news.spiders'
 
@@ -15,3 +16,6 @@ NEWSPIDER_MODULE = 'news.spiders'
 #USER_AGENT = 'news (+http://www.yourdomain.com)'
 
 ITEM_PIPELINES = ['news.pipelines.ifengNewsPipeline']
+
+LOG_FILE = "/tmp/news.ifeng.spider"
+LOG_LEVEL = scrapy.log.WARNING
