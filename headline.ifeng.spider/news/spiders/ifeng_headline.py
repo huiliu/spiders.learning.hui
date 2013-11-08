@@ -16,17 +16,20 @@ class environmentSpider(BaseSpider):
         """
         timeNow = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+        Get = lambda x, y : x.select(y).extract()[0]\
+                                    if len(x.select(y).extract()) > 0 else None
+
         hxs = HtmlXPathSelector(response)
-        xpath_headline = "/html/body/div[7]/div/div/div/div[3]/h1/a"
-        xpath_mainnews = "/html/body/div[7]/div/div/div/div[3]/ul/li"
+        xpath_headline = "/html/body/div[8]/div/div/div/div[3]/h1/a"
+        xpath_mainnews = "/html/body/div[8]/div/div/div/div[3]/ul/li"
         headline = hxs.select(xpath_headline)
         mainNews = hxs.select(xpath_mainnews)
 
         items = []
         item = NewsItem()
 
-        item['title'] = headline.select('text()').extract()[0]
-        item['href'] = headline.select('@href').extract()[0]
+        item['title'] = Get(headline, "text()")
+        item['href'] = Get(headline, "@href")
         item['uptime'] = timeNow
         item['pri'] = 0
         items.append(item)
@@ -34,8 +37,8 @@ class environmentSpider(BaseSpider):
         for mainNewsItem in mainNews:
             # print mainNewsItem
             item = NewsItem()
-            item['title'] = mainNewsItem.select('a/text()').extract()[0]
-            item['href'] = mainNewsItem.select('a/@href').extract()[0]
+            item['title'] = Get(mainNewsItem, "a/text()")
+            item['href'] = Get(mainNewsItem, "a/@href")
             item['uptime'] = timeNow
             item['pri'] = 3
             # print mainNewsItem

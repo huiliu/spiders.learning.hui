@@ -23,6 +23,7 @@ class ifengHeadlinePipeline(object):
     def process_item(self, item, spider):
         """
         """
+        if not item['title']: return item
         sql_chk = """SELECT id FROM %s WHERE title = '%s'""" %\
                                                 (self.tblName, item['title'])
         self.cur.execute(sql_chk)
