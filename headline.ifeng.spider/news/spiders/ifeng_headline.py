@@ -41,5 +41,4 @@ class environmentSpider(BaseSpider):
             # print mainNewsItem
             # print item
             items.append(item)
-        print items
         return items

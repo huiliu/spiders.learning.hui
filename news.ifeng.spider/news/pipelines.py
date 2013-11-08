@@ -22,7 +22,6 @@ class ifengNewsPipeline(object):
         if not item['title']: return item
         sqlChk = "SELECT id FROM %s WHERE title = '%s'" %\
                                                 (self.tblName, item['title'])
-        print sqlChk
         self.cur.execute(sqlChk)
         if self.cur.fetchone() is not None: return item
 
@@ -37,12 +36,6 @@ class ifengNewsPipeline(object):
                                             '%s',
                                             %d
                                 )"""
-        print sql % (self.tblName,
-                                item['title'],
-                                item['href'],
-                                item['uptime'],
-                                item['pri']
-                                )
         # 使用self.execute(sql, ())时一直出错
         self.cur.execute(sql % (
                                 self.tblName,

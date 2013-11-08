@@ -7,7 +7,8 @@ from scrapy import log
 
 class environmentSpider(BaseSpider):
     name = 'environment.news.spider'
-    start_urls = ['http://datacenter.mep.gov.cn/report/air_daily/air_dairy.jsp?city=&startdate=2000-01-01&enddate=2013-11-02&page=1']
+    url = "http://datacenter.mep.gov.cn/report/air_daily/air_dairy.jsp?city=&startdate=2013-11-03&enddate=2013-11-08&page=%d"
+    start_urls = [url % 1]
 
     def parse(self, response):
         """
@@ -17,7 +18,7 @@ class environmentSpider(BaseSpider):
         log.msg("总页数为：%d\n", record_count, level = log.WARNING)
         for i in range(2, record_count + 1):
             log.msg("第%d页\n" % i)
-            yield Request('http://datacenter.mep.gov.cn/report/air_daily/air_dairy.jsp?city=&startdate=2000-01-01&enddate=2013-11-02&page=%d' % i, callback=self.parse_items)
+            yield Request(self.url % i, callback=self.parse_items)
 
     def parse_items(self, response):
         """

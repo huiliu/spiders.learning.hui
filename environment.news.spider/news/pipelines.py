@@ -12,7 +12,7 @@ class EnviromentPipeline(object):
                                         host='localhost',
                                         user='spider',
                                         passwd='spider',
-                                        db='enviroment_spider',
+                                        db='spider',
                                         charset='utf8',
                                         use_unicode=True
                                     )
@@ -20,7 +20,7 @@ class EnviromentPipeline(object):
     def process_item(self, item, spider):
         """
         """
-        sql = """INSERT INTO enviroment_spider.airq VALUE (
+        sql = """INSERT INTO spider.airq VALUE (
                                                             %d,
                                                             '%s',
                                                             '%s',
