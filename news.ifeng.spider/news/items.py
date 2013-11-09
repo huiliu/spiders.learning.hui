@@ -16,4 +16,5 @@ class NewsItem(Item):
     editor = Field()
     content = Field()
     tags = Field()
+    site = Field()
     pass

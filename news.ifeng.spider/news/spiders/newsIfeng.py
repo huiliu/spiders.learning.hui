@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from scrapy import log
 from scrapy.spider import BaseSpider
 from scrapy.selector import HtmlXPathSelector
 from scrapy.http import Request
@@ -9,6 +10,7 @@ class NewsIfengSpider(BaseSpider):
     """
     """
     name = "news.ifeng.spider"
+    site_name = "凤凰网资讯"
     start_urls = ['http://news.ifeng.com/']
 
     def parse(self, response):
@@ -17,7 +19,7 @@ class NewsIfengSpider(BaseSpider):
         items = []
         timeNow = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        Get = lambda x, y : x.select(y).extract()[0]\
+        Get = lambda x, y : x.select(y).extract()[0].strip()\
                                     if len(x.select(y).extract()) > 0 else None
 
         def News(hxs, xpath, pri):
@@ -28,8 +30,10 @@ class NewsIfengSpider(BaseSpider):
                 item['href'] = Get(tmp, '@href')
                 item['uptime'] = timeNow
                 item['pri'] = pri
+                item['site'] = self.site_name
 
                 items.append(item)
+
         hxs = HtmlXPathSelector(response)
 
         hlXPath0 = "/html/body/div[5]/div/div/div/h2/a"
@@ -65,4 +69,46 @@ class NewsIfengSpider(BaseSpider):
         News(hxs, hkXPath0, 5)
         News(hxs, hkXPath1, 7)
 
+        return items
+
+class environmentSpider(BaseSpider):
+    name = 'headline.ifeng.spider'
+    site_name = "凤凰网主页"
+    start_urls = ['http://www.ifeng.com/']
+
+    def parse(self, response):
+        """
+        """
+        timeNow = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        Get = lambda x, y : x.select(y).extract()[0].strip()\
+                                    if len(x.select(y).extract()) > 0 else None
+
+        hxs = HtmlXPathSelector(response)
+        xpath_headline = "/html/body/div[8]/div/div/div/div[3]/h1/a"
+        xpath_mainnews = "/html/body/div[8]/div/div/div/div[3]/ul/li"
+        headline = hxs.select(xpath_headline)
+        mainNews = hxs.select(xpath_mainnews)
+
+        items = []
+        item = NewsItem()
+
+        item['title'] = Get(headline, "text()")
+        item['href'] = Get(headline, "@href")
+        item['uptime'] = timeNow
+        item['pri'] = 0
+        item['site'] = self.site_name
+        items.append(item)
+
+        for mainNewsItem in mainNews:
+            # print mainNewsItem
+            item = NewsItem()
+            item['title'] = Get(mainNewsItem, "a/text()")
+            item['href'] = Get(mainNewsItem, "a/@href")
+            item['uptime'] = timeNow
+            item['pri'] = 3
+            item['site'] = self.site_name
+            # print mainNewsItem
+            # print item
+            items.append(item)
         return items

@@ -29,12 +29,14 @@ class ifengNewsPipeline(object):
                                             title,
                                             href,
                                             uptime,
-                                            pri
+                                            pri,
+                                            site
                                 ) VALUE (
                                             '%s',
                                             '%s',
                                             '%s',
-                                            %d
+                                            %d,
+                                            '%s'
                                 )"""
         # 使用self.execute(sql, ())时一直出错
         self.cur.execute(sql % (
@@ -42,7 +44,8 @@ class ifengNewsPipeline(object):
                                 item['title'],
                                 item['href'],
                                 item['uptime'],
-                                item['pri']
+                                item['pri'],
+                                item['site']
                                 )
                         )
         self.conn.commit()
