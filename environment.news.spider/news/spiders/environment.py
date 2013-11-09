@@ -29,7 +29,7 @@ class environmentSpider(BaseSpider):
 
         # Becouse the tr of table
         if len(tr) <= 5:
-            log.msg("表格的列数不对！%s", repr(tr), level = log.WARNING)
+            log.msg("表格的列数不对！%s"% repr(tr), level = log.WARNING)
             return
 
         items = []
