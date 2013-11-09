@@ -10,7 +10,7 @@ class NewsIfengSpider(BaseSpider):
     """
     """
     name = "news.ifeng.spider"
-    site_name = "凤凰网资讯"
+    site_name = u"凤凰网资讯"
     start_urls = ['http://news.ifeng.com/']
 
     def parse(self, response):
@@ -73,7 +73,7 @@ class NewsIfengSpider(BaseSpider):
 
 class environmentSpider(BaseSpider):
     name = 'headline.ifeng.spider'
-    site_name = "凤凰网主页"
+    site_name = u"凤凰网主页"
     start_urls = ['http://www.ifeng.com/']
 
     def parse(self, response):
@@ -110,5 +110,33 @@ class environmentSpider(BaseSpider):
             item['site'] = self.site_name
             # print mainNewsItem
             # print item
+            items.append(item)
+        return items
+
+Get = lambda x, y : x.select(y).extract()[0].strip()\
+                                    if len(x.select(y).extract()) > 0 else None
+class NationalGovSpider(BaseSpider):
+    name = "nation.gov.spider"
+    site_name = u'政府网中国要闻'
+    start_urls = ['http://www.gov.cn/jrzg/zgyw.htm']
+
+    def parse(self, response):
+        """
+        """
+        xpathNews = '//a'
+        xpathDate = '//span/text()'
+
+        hxs = HtmlXPathSelector(response)
+        News = hxs.select(xpathNews)
+        Date = hxs.select(xpathDate).extract()
+
+        items = []
+        for n, d in zip(News[2:-8], Date[2:-1]):
+            item = NewsItem()
+            item['title'] = Get(n, 'text()')
+            item['href'] = "http://www.gov.cn/jrzg/%s" % Get(n, '@href')
+            item['uptime'] = d[0]
+            item['pri'] = 0
+            item['site'] = self.site_name
             items.append(item)
         return items

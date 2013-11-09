@@ -4,7 +4,13 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/topics/item-pipeline.html
 import MySQLdb
+from MySQLdb import escape_string
+from scrapy import log
 from news.dbconfig import DB_CONFIG
+
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 class ifengNewsPipeline(object):
     def __init__(self):
@@ -21,7 +27,8 @@ class ifengNewsPipeline(object):
     def process_item(self, item, spider):
         if not item['title']: return item
         sqlChk = "SELECT id FROM %s WHERE title = '%s'" %\
-                                                (self.tblName, item['title'])
+                                                (self.tblName, escape_string(item['title']))
+        #log.msg(sqlChk, level=log.WARNING)
         self.cur.execute(sqlChk)
         if self.cur.fetchone() is not None: return item
 
@@ -38,14 +45,15 @@ class ifengNewsPipeline(object):
                                             %d,
                                             '%s'
                                 )"""
+        #log.msg(sql, level=log.WARNING)
         # 使用self.execute(sql, ())时一直出错
         self.cur.execute(sql % (
                                 self.tblName,
-                                item['title'],
-                                item['href'],
-                                item['uptime'],
+                                escape_string(item['title']),
+                                escape_string(item['href']),
+                                escape_string(item['uptime']),
                                 item['pri'],
-                                item['site']
+                                escape_string(item['site'])
                                 )
                         )
         self.conn.commit()
