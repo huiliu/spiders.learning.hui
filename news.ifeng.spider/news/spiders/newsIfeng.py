@@ -135,3 +135,65 @@ class NationalGovSpider(BaseSpider):
             item['site'] = self.site_name
             items.append(item)
         return items
+
+class HeadLinePeopleSpider(BaseSpider):
+    """
+    """
+    name = "headline.people.spider"
+    siteName = u"人民网主页"
+    start_urls = ["http://www.people.com.cn/"]
+
+    def parse(self, response):
+        """
+        """
+        def News(sel, xpath, pri):
+            """
+            """
+            Headline = sel.xpath(xpath)
+
+            for h in Headline:
+                item = NewsItem()
+                tt = h.xpath('.//a/text()').extract()
+                hh = h.xpath('.//a/@href').extract()
+                if tt and len(tt) == 1:
+                    item['title'] = tt[0].strip()
+                    item['href'] = hh[0]
+                    item['uptime'] = timeNow
+                    item['pri'] = pri
+                    item['site'] = self.siteName
+                    items.append(item)
+                else:
+                    for i, j in zip(tt, hh):
+                        item = NewsItem()
+                        item['title'] = tt[0].strip()
+                        item['href'] = hh[0]
+                        item['uptime'] = timeNow
+                        item['pri'] = pri
+                        item['site'] = self.siteName
+                        items.append(item)
+
+        xpathHeadline = "/html/body/div[3]/div/p"
+        xpathBlock1Items = "/html/body/div[3]/div[3]/div/h2"
+        xpathBlock2Head = "/html/body/div[3]/div[3]/div[2]/ul/li/strong"
+        xpathBlock2Items = "/html/body/div[3]/div[3]/div[2]/ul/li"
+        xpathRightBlockHead = "/html/body/div[3]/div[4]/div[4]/ul/li/strong"
+        xpathRightBlockItems = "/html/body/div[3]/div[4]/div[4]/ul[2]/li"
+        xpathBlock3Items = "/html/body/div[3]/div[3]/div[4]/ul/li"
+        xpathHotSpecial = "/html/body/div[3]/div[4]/div[6]/ul/li"
+        xpathHotInter = "/html/body/div[5]/div[3]/div/div/dl/dt"
+
+        timeNow = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        items = []
+        sel = Selector(response)
+
+        News(sel, xpathHeadline, 0)
+        News(sel, xpathBlock1Items, 0)
+        News(sel, xpathBlock2Items, 2)
+        News(sel, xpathBlock2Items, 3)
+        News(sel, xpathRightBlockHead, 3)
+        News(sel, xpathRightBlockItems, 5)
+        News(sel, xpathBlock3Items, 4)
+        News(sel, xpathHotSpecial, 6)
+        News(sel, xpathHotInter, 8)
+
+        return items
