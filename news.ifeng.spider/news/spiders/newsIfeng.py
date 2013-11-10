@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 from scrapy import log
 from scrapy.spider import BaseSpider
-from scrapy.selector import HtmlXPathSelector
+from scrapy.selector import Selector
 from scrapy.http import Request
 from news.items import NewsItem
 from datetime import datetime
+
+Get = lambda x, y : x.xpath(y).extract()[0].strip()\
+                                    if len(x.xpath(y).extract()) > 0 else None
 
 class NewsIfengSpider(BaseSpider):
     """
@@ -19,11 +22,8 @@ class NewsIfengSpider(BaseSpider):
         items = []
         timeNow = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        Get = lambda x, y : x.select(y).extract()[0].strip()\
-                                    if len(x.select(y).extract()) > 0 else None
-
         def News(hxs, xpath, pri):
-            for tmp in hxs.select(xpath):
+            for tmp in hxs.xpath(xpath):
                 item = NewsItem()
 
                 item['title'] = Get(tmp, "text()")
@@ -34,7 +34,7 @@ class NewsIfengSpider(BaseSpider):
 
                 items.append(item)
 
-        hxs = HtmlXPathSelector(response)
+        hxs = Selector(response)
 
         hlXPath0 = "/html/body/div[5]/div/div/div/h2/a"
         hlXPath1 = "/html/body/div[5]/div/div/div/h3/a"
@@ -47,7 +47,7 @@ class NewsIfengSpider(BaseSpider):
         importNewsXPath11 = './/a'
 
         News(hxs, importNewsXPath0, 2)
-        News(hxs.select(importNewsXPath1), importNewsXPath11, 4)
+        News(hxs.xpath(importNewsXPath1), importNewsXPath11, 4)
 
         mainlandXPath0 = '/html/body/div[5]/div/div[3]/div[2]/dl/dd/h6/a'
         mainlandXPath1 = '/html/body/div[5]/div/div[3]/ul/li/a'
@@ -81,14 +81,11 @@ class environmentSpider(BaseSpider):
         """
         timeNow = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        Get = lambda x, y : x.select(y).extract()[0].strip()\
-                                    if len(x.select(y).extract()) > 0 else None
-
-        hxs = HtmlXPathSelector(response)
+        hxs = Selector(response)
         xpath_headline = "/html/body/div[8]/div/div/div/div[3]/h1/a"
         xpath_mainnews = "/html/body/div[8]/div/div/div/div[3]/ul/li"
-        headline = hxs.select(xpath_headline)
-        mainNews = hxs.select(xpath_mainnews)
+        headline = hxs.xpath(xpath_headline)
+        mainNews = hxs.xpath(xpath_mainnews)
 
         items = []
         item = NewsItem()
@@ -113,8 +110,6 @@ class environmentSpider(BaseSpider):
             items.append(item)
         return items
 
-Get = lambda x, y : x.select(y).extract()[0].strip()\
-                                    if len(x.select(y).extract()) > 0 else None
 class NationalGovSpider(BaseSpider):
     name = "nation.gov.spider"
     site_name = u'政府网中国要闻'
@@ -126,9 +121,9 @@ class NationalGovSpider(BaseSpider):
         xpathNews = '//a'
         xpathDate = '//span/text()'
 
-        hxs = HtmlXPathSelector(response)
-        News = hxs.select(xpathNews)
-        Date = hxs.select(xpathDate).extract()
+        hxs = Selector(response)
+        News = hxs.xpath(xpathNews)
+        Date = hxs.xpath(xpathDate).extract()
 
         items = []
         for n, d in zip(News[2:-8], Date[2:-1]):

@@ -15,7 +15,9 @@ NEWSPIDER_MODULE = 'news.spiders'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'news (+http://www.yourdomain.com)'
 
-ITEM_PIPELINES = ['news.pipelines.ifengNewsPipeline']
+ITEM_PIPELINES = {
+                    'news.pipelines.ifengNewsPipeline':100,
+                }
 
 LOG_FILE = "/tmp/news.ifeng.spider"
 LOG_LEVEL = scrapy.log.WARNING
