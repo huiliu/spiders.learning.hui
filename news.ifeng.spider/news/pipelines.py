@@ -24,11 +24,12 @@ class ifengNewsPipeline(object):
                                         use_unicode=True
                                     )
         self.cur = self.conn.cursor()
+
     def process_item(self, item, spider):
         if not item['title']: return item
         sqlChk = "SELECT id FROM %s WHERE title = '%s'" %\
                                                 (self.tblName, escape_string(item['title']))
-        #log.msg(sqlChk, level=log.WARNING)
+        # log.msg(sqlChk, level=log.WARNING)
         self.cur.execute(sqlChk)
         if self.cur.fetchone() is not None: return item
 
@@ -44,18 +45,18 @@ class ifengNewsPipeline(object):
                                             '%s',
                                             %d,
                                             '%s'
-                                )"""
-        #log.msg(sql, level=log.WARNING)
-        # 使用self.execute(sql, ())时一直出错
-        self.cur.execute(sql % (
-                                self.tblName,
-                                escape_string(item['title']),
-                                escape_string(item['href']),
-                                escape_string(item['uptime']),
-                                item['pri'],
-                                escape_string(item['site'])
+                                )""" % (
+                                            self.tblName,
+                                            escape_string(item['title']),
+                                            escape_string(item['href']),
+                                            escape_string(item['uptime']),
+                                            item['pri'],
+                                            escape_string(item['site'])
                                 )
-                        )
+        self.conn.commit()
+        # log.msg(sql, level=log.WARNING)
+        # 使用self.execute(sql, ())时一直出错
+        self.cur.execute(sql)
         self.conn.commit()
         return item
 
