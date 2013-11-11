@@ -130,7 +130,7 @@ class NationalGovSpider(BaseSpider):
             item = NewsItem()
             item['title'] = Get(n, 'text()')
             item['href'] = "http://www.gov.cn/jrzg/%s" % Get(n, '@href')
-            item['uptime'] = d[0]
+            item['uptime'] = "%s-%s" % (datetime.now().strftime("%Y"), d[1:-1])
             item['pri'] = 0
             item['site'] = self.site_name
             items.append(item)
