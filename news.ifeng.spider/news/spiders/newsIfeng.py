@@ -9,6 +9,21 @@ from datetime import datetime
 Get = lambda x, y : x.xpath(y).extract()[0].strip()\
                                     if len(x.xpath(y).extract()) > 0 else None
 
+def parseIfengContent(response):
+    """
+    """
+    xpathBody = '//div[@id="artical_real"]'
+    sel = Selector(response)
+
+    content = ''
+    div = sel.xpath(xpathBody)
+    for tmp in div.xpath('.//text()').extract():
+        content = "%s%s\n" % (content, tmp.strip())
+    item = response.meta['item']
+    item['content'] = "" if content is None else content.strip()
+
+    return item
+
 class NewsIfengSpider(BaseSpider):
     """
     """
@@ -19,57 +34,58 @@ class NewsIfengSpider(BaseSpider):
     def parse(self, response):
         """
         """
-        items = []
         timeNow = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        def News(hxs, xpath, pri):
-            for tmp in hxs.xpath(xpath):
+        xpath = {
+                    "head0": "/html/body/div[5]/div/div/div/h2/a",
+                    "head1": "/html/body/div[5]/div/div/div/h3/a",
+                    "importNews0": "/html/body/div[5]/div/div[2]/ul/li/h4/a/b",
+                    "mainland0": '/html/body/div[5]/div/div[3]/div[2]/dl/dd/h6/a',
+                    "mainland1": '/html/body/div[5]/div/div[3]/ul/li/a',
+                    "inter0": '/html/body/div[6]/div/div/div[2]/dl/dd/h6/a',
+                    "inter1": '/html/body/div[6]/div/div/ul/li/a',
+                    "tai0": '/html/body/div[6]/div/div[3]/div[2]/dl/dd/h6/a',
+                    "tai1": '/html/body/div[6]/div/div[3]/ul/li/a',
+                    "hkXPath0": '/html/body/div[6]/div/div[4]/div[2]/dl/dd/h6/a',
+                    "hkXPath1": '/html/body/div[6]/div/div[4]/ul/li/a'
+                }
+        pri = {
+                    "head0": 0,
+                    "head1": 3,
+                    "importNews0": 2,
+                    "mainland0": 5,
+                    "mainland1": 7,
+                    "inter0": 5,
+                    "inter1": 7,
+                    "tai0": 5,
+                    "tai1": 7,
+                    "hkXPath0": 5,
+                    "hkXPath1": 7
+                }
+
+        hxs = Selector(response)
+
+        for x, p in zip(xpath.values(), pri.values()):
+            for tmp in hxs.xpath(x):
                 item = NewsItem()
 
                 item['title'] = Get(tmp, "text()")
                 item['href'] = Get(tmp, '@href')
                 item['uptime'] = timeNow
-                item['pri'] = pri
+                item['pri'] = p
                 item['site'] = self.site_name
 
-                items.append(item)
+                request = Request(item['href'], callback=parseIfengContent)
+                request.meta['item'] = item
+                yield request
 
-        hxs = Selector(response)
-
-        hlXPath0 = "/html/body/div[5]/div/div/div/h2/a"
-        hlXPath1 = "/html/body/div[5]/div/div/div/h3/a"
-
-        News(hxs, hlXPath0, 0)
-        News(hxs, hlXPath1, 3)
-
-        importNewsXPath0 = "/html/body/div[5]/div/div[2]/ul/li/h4/a/b"
+        """
         importNewsXPath1 = '/html/body/div[5]/div/div[@class="box_02"]'
         importNewsXPath11 = './/a'
 
         News(hxs, importNewsXPath0, 2)
         News(hxs.xpath(importNewsXPath1), importNewsXPath11, 4)
-
-        mainlandXPath0 = '/html/body/div[5]/div/div[3]/div[2]/dl/dd/h6/a'
-        mainlandXPath1 = '/html/body/div[5]/div/div[3]/ul/li/a'
-        News(hxs, mainlandXPath0, 5)
-        News(hxs, mainlandXPath1, 7)
-
-        interXPath0 = '/html/body/div[6]/div/div/div[2]/dl/dd/h6/a'
-        interXPath1 = '/html/body/div[6]/div/div/ul/li/a'
-        News(hxs, interXPath0, 5)
-        News(hxs, interXPath1, 7)
-
-        taiXPath0 = '/html/body/div[6]/div/div[3]/div[2]/dl/dd/h6/a'
-        taiXPath1 = '/html/body/div[6]/div/div[3]/ul/li/a'
-        News(hxs, taiXPath0, 5)
-        News(hxs, taiXPath1, 7)
-
-        hkXPath0 = '/html/body/div[6]/div/div[4]/div[2]/dl/dd/h6/a'
-        hkXPath1 = '/html/body/div[6]/div/div[4]/ul/li/a'
-        News(hxs, hkXPath0, 5)
-        News(hxs, hkXPath1, 7)
-
-        return items
+        """
 
 class HeadlineIfengSpider(BaseSpider):
     name = 'headline.ifeng.spider'
@@ -82,8 +98,8 @@ class HeadlineIfengSpider(BaseSpider):
         timeNow = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         hxs = Selector(response)
-        xpath_headline = "/html/body/div[8]/div/div/div/div[3]/h1/a"
-        xpath_mainnews = "/html/body/div[8]/div/div/div/div[3]/ul/li"
+        xpath_headline = "/html/body/div[7]/div/div/div/div[3]/h1/a"
+        xpath_mainnews = "/html/body/div[7]/div/div/div/div[3]/ul/li"
         headline = hxs.xpath(xpath_headline)
         mainNews = hxs.xpath(xpath_mainnews)
 
@@ -105,24 +121,9 @@ class HeadlineIfengSpider(BaseSpider):
             item['pri'] = 3
             item['site'] = self.site_name
 
-            respuest = Request(item['href'], callback=self.parse_content)
-            respuest.meta['item'] = item
-            yield respuest
-
-    def parse_content(self, response):
-        """
-        """
-        xpathBody = '//div[@id="artical_real"]'
-        sel = Selector(response)
-
-        content = ''
-        div = sel.xpath(xpathBody)
-        for tmp in div.xpath('.//text()').extract():
-            content = "%s%s\n" % (content, tmp.strip())
-        item = response.meta['item']
-        item['content'] = content.strip()
-
-        return item
+            request = Request(item['href'], callback=parseIfengContent)
+            request.meta['item'] = item
+            yield request
 
 class NationalGovSpider(BaseSpider):
     name = "nation.gov.spider"
