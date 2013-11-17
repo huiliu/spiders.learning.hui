@@ -71,7 +71,7 @@ class NewsIfengSpider(BaseSpider):
 
         return items
 
-class environmentSpider(BaseSpider):
+class HeadlineIfengSpider(BaseSpider):
     name = 'headline.ifeng.spider'
     site_name = u"凤凰网主页"
     start_urls = ['http://www.ifeng.com/']
@@ -98,17 +98,31 @@ class environmentSpider(BaseSpider):
         items.append(item)
 
         for mainNewsItem in mainNews:
-            # print mainNewsItem
             item = NewsItem()
             item['title'] = Get(mainNewsItem, "a/text()")
             item['href'] = Get(mainNewsItem, "a/@href")
             item['uptime'] = timeNow
             item['pri'] = 3
             item['site'] = self.site_name
-            # print mainNewsItem
-            # print item
-            items.append(item)
-        return items
+
+            respuest = Request(item['href'], callback=self.parse_content)
+            respuest.meta['item'] = item
+            yield respuest
+
+    def parse_content(self, response):
+        """
+        """
+        xpathBody = '//div[@id="artical_real"]'
+        sel = Selector(response)
+
+        content = ''
+        div = sel.xpath(xpathBody)
+        for tmp in div.xpath('.//text()').extract():
+            content = "%s%s\n" % (content, tmp.strip())
+        item = response.meta['item']
+        item['content'] = content.strip()
+
+        return item
 
 class NationalGovSpider(BaseSpider):
     name = "nation.gov.spider"

@@ -36,10 +36,12 @@ class ifengNewsPipeline(object):
         sql = """INSERT INTO %s (
                                             title,
                                             href,
+                                            content,
                                             uptime,
                                             pri,
                                             site
                                 ) VALUE (
+                                            '%s',
                                             '%s',
                                             '%s',
                                             '%s',
@@ -49,11 +51,11 @@ class ifengNewsPipeline(object):
                                             self.tblName,
                                             escape_string(item['title']),
                                             escape_string(item['href']),
+                                            escape_string(item['content']),
                                             escape_string(item['uptime']),
                                             item['pri'],
                                             escape_string(item['site'])
                                 )
-        self.conn.commit()
         # log.msg(sql, level=log.WARNING)
         # 使用self.execute(sql, ())时一直出错
         self.cur.execute(sql)
