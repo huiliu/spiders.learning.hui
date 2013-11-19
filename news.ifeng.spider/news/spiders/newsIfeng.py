@@ -20,7 +20,7 @@ def parseIfengContent(response):
     for tmp in div.xpath('.//text()').extract():
         content = "%s%s\n" % (content, tmp.strip())
     item = response.meta['item']
-    item['content'] = "" if content is None else content.strip()
+    item['content'] = content.strip()
 
     return item
 
@@ -148,8 +148,30 @@ class NationalGovSpider(BaseSpider):
             item['uptime'] = "%s-%s" % (datetime.now().strftime("%Y"), d[1:-1])
             item['pri'] = 0
             item['site'] = self.site_name
-            items.append(item)
-        return items
+
+            request = Request(item['href'], callback=self.parseGovContent)
+            request.meta['item'] = item
+            yield request
+
+    def parseGovContent(self, response):
+        """
+        """
+        content = ""
+        cssNewsBody = 'td.p1'
+        xpathNewsText = './/text()'
+        item = response.meta['item']
+
+        sel = Selector(response)
+        selBody = sel.css(cssNewsBody)
+
+        if len(selBody) == 1:
+            for temp in selBody[0].xpath(xpathNewsText).extract():
+                content = "%s%s\n" % (content, temp.strip())
+            item['content'] = content.strip()
+        else:
+            item['content'] = ''
+
+        return item
 
 class HeadLinePeopleSpider(BaseSpider):
     """
