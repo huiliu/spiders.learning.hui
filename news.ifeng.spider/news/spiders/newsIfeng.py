@@ -127,8 +127,10 @@ class HeadlineIfengSpider(BaseSpider):
 
 class NationalGovSpider(BaseSpider):
     name = "nation.gov.spider"
-    site_name = u'政府网中国要闻'
-    start_urls = ['http://www.gov.cn/jrzg/zgyw.htm']
+    start_urls = [
+                    'http://www.gov.cn/jrzg/zgyw.htm',
+                    'http://www.gov.cn/yjgl/tfsj.htm'
+                    ]
 
     def parse(self, response):
         """
@@ -140,17 +142,33 @@ class NationalGovSpider(BaseSpider):
         News = hxs.xpath(xpathNews)
         Date = hxs.xpath(xpathDate).extract()
 
-        items = []
+        srcUrl = response.url
+        if srcUrl == self.start_urls[0]:
+            i = 2; j = -8
+            m = 2; n = -1
+            site_name = u'政府网中国要闻'
+        elif srcUrl == self.start_urls[1]:
+            i = 2; j = ''
+            m = 1; n = ''
+            site_name = u'政府网突发事件'
+        else:
+            log.msg('网址错误啊！', level=log.WARING)
+
         for n, d in zip(News[2:-8], Date[2:-1]):
             item = NewsItem()
             item['title'] = Get(n, 'text()')
             item['href'] = "http://www.gov.cn/jrzg/%s" % Get(n, '@href')
-            item['uptime'] = "%s-%s" % (datetime.now().strftime("%Y"), d[1:-1])
             item['pri'] = 0
-            item['site'] = self.site_name
+            item['site'] = site_name
+
+            if site_name == u'政府网中国要闻':
+                item['uptime'] = "%s-%s" % (datetime.now().strftime("%Y"), d[1:-1])
+            else:
+                item['uptime'] = d[1:-1]
 
             request = Request(item['href'], callback=self.parseGovContent)
             request.meta['item'] = item
+
             yield request
 
     def parseGovContent(self, response):
