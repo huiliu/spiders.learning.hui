@@ -216,7 +216,11 @@ class HeadLinePeopleSpider(BaseSpider):
                     item['uptime'] = timeNow
                     item['pri'] = pri
                     item['site'] = self.siteName
-                    items.append(item)
+
+                    request = Request(item['href'],
+                                                callback=self.parsePeopleContent)
+                    request.meta['item'] = item
+                    yield request
                 else:
                     for i, j in zip(tt, hh):
                         item = NewsItem()
@@ -225,7 +229,12 @@ class HeadLinePeopleSpider(BaseSpider):
                         item['uptime'] = timeNow
                         item['pri'] = pri
                         item['site'] = self.siteName
-                        items.append(item)
+
+                        request = Request(item['href'],
+                                                    callback=self.parsePeopleContent)
+                        request.meta['item'] = item
+                        yield request
+
 
         xpathHeadline = "/html/body/div[3]/div/p"
         xpathBlock1Items = "/html/body/div[3]/div[3]/div/h2"
@@ -252,3 +261,23 @@ class HeadLinePeopleSpider(BaseSpider):
         News(sel, xpathHotInter, 8)
 
         return items
+
+    def parsePeopleContent(self, response):
+        """
+        """
+        xpathNewsBody = 'div[@class="text"]'
+        xpathNewsText = './/p/text()'
+        item = response.meta['item']
+
+        sel = Selector(response)
+
+        body = sel.xpath(xpathNewsBody)
+        if len(body) != 1:
+            log.msg("没有获取到新闻内容。%s  %s" %\
+                            (item['title'], item['href']), level=log.WARNING)
+        content = ''
+        for temp in body[0].xpath(xpathNewsText).extract():
+            content = "%s%s\n" % (content, temp)
+        item['content'] = content.strip()
+
+        return item
