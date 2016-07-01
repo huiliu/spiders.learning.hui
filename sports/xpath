@@ -1,0 +1,43 @@
+http://soccerdata.sports.qq.com/team/1.htm
+
+年份
+//div[@class="set-t"]/span/text()
+
+球队数据
+常规
+//table[@id="2015-al1"]/tr[@class="a2"]/td
+进攻
+//table[@id="2015-al2"]/tr[@class="a2"]/td
+防守
+//table[@id="2015-al3"]/tr[@class="a2"]/td
+
+赛季单场数据
+常规
+//table[@id="2015-div1"]/tr[@class="a2"]/td
+进攻
+//table[@id="2015-div2"]/tr[@class="a2"]/td
+防守
+//table[@id="2015-div3"]/tr[@class="a2"]/td
+
+In [23]: for td in response.xpath('//table[@id="2015-div1"]/tr[@class="a2"]')[0].xpath('./td'):
+    data = td.xpath('text()').extract()
+    if not data:
+        data = td.xpath('.//a/text()').extract()
+    print(data)
+
+
+球员数据统计
+常规
+//div[@id="player-stat-2015"]/table[@id="2015-play_stat_div_1"]/tr[@class="a2"]/td
+进攻
+//div[@id="player-stat-2015"]/table[@id="2015-play_stat_div_2"]/tr[@class="a2"]/td
+防守
+//div[@id="player-stat-2015"]/table[@id="2015-play_stat_div_3"]/tr[@class="a2"]/td
+
+守门员数据
+常规
+//div[@id="player-stat-2015"]/table[@id="2015-div1"]/tr[@class="a2"]/td
+进攻
+//div[@id="player-stat-2015"]/table[@id="2015-div2"]/tr[@class="a2"]/td
+防守
+//div[@id="player-stat-2015"]/table[@id="2015-div3"]/tr[@class="a2"]/td
