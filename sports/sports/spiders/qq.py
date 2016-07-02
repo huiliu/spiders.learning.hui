@@ -11,6 +11,7 @@ class QqSpider(scrapy.Spider):
     name = "qq"
     allowed_domains = ["soccerdata.sports.qq.com"]
     start_urls = (
+        #'http://soccerdata.sports.qq.com/player/13017.htm',
         'http://soccerdata.sports.qq.com/team/1.htm',
     )
 
@@ -18,12 +19,13 @@ class QqSpider(scrapy.Spider):
         season_xpath = '//div[@class="set-t"]/span/text()'
 
         for season in response.xpath(season_xpath).extract():
-            #print(u"====================%s赛季球队总数据=====================" % season)
-            #self.parse_team_season_sum_data(response, season)
-            #print(u"===================%s赛季球队单场数据====================" % season)
-            #self.parse_team_season_detail_data(response, season)
+            print(u"====================%s赛季球队总数据=====================" % season)
+            self.parse_team_season_sum_data(response, season)
+            print(u"===================%s赛季球队单场数据====================" % season)
+            self.parse_team_season_detail_data(response, season)
             print(u"===================%s赛季个人总数据====================" % season)
             self.parse_player_season_sum_data(response, season)
+            break
 
     def parse_team_season_sum_data(self, response, season):
         """
@@ -33,13 +35,13 @@ class QqSpider(scrapy.Spider):
         """
         team_normal_title_xpath = '//table[@id="%s-al1"]/tr[@class="a1"]/td/text()' % season
         team_normal_xpath = '//table[@id="%s-al1"]/tr[@class="a2"]/td/text()' % season
+
         team_attack_title_xpath = '//table[@id="%s-al2"]/tr[@class="a1"]/td/text()' % season
         team_attack_xpath = '//table[@id="%s-al2"]/tr[@class="a2"]/td/text()' % season
+
         team_defense_title_xpath = '//table[@id="%s-al3"]/tr[@class="a1"]/td/text()' % season
         team_defense_xpath = '//table[@id="%s-al3"]/tr[@class="a2"]/td/text()' % season
 
-        #print("XPATH:\t", team_normal_xpath)
-        data = SeasonData()
 
         normal_title = extract_data(response, team_normal_title_xpath)
         normal_data = extract_data(response, team_normal_xpath)
@@ -147,32 +149,26 @@ class QqSpider(scrapy.Spider):
         for normal, attack, defense in zip(player_normal_data, player_attack_data, player_defense_data):
             print(' '.join(normal + attack[8:] + defense[8:]))
 
-        return
-
-        print("球员名字：")
-        print('\t'.join(player_name))
-
-        print("球员链接：")
-        print('\t'.join(player_href))
-
+        for name, href in zip(player_name, player_href):
+            print(name, " : ", href)
 
         # 守门员数据
         # 12
-        goalkeeper_xpath = '//div[@id="player-stat-%s"]//table[@id="%s-div1"]/tr[@class="a2"]/td/text()' % (season, season)
+        goalkeeper_title_xpath = '//div[@id="player-stat-%s"]//table[@id="%s-div1"]/tr[@class="a1"]//text()' % (season, season)
+        goalkeeper_tr_xpath = '//div[@id="player-stat-%s"]//table[@id="%s-div1"]/tr[@class="a2"]' % (season, season)
+
         goalkeeper_name_xpath = '//div[@id="player-stat-%s"]//table[@id="%s-div1"]/tr[@class="a2"]/td[2]/a/text()' % (season, season)
         goalkeeper_href_xpath = '//div[@id="player-stat-%s"]//table[@id="%s-div1"]/tr[@class="a2"]/td[2]/a/@href' % (season, season)
 
-        goalkeeper_data = extract_data(response, goalkeeper_xpath)
+        goalkeeper_title = extract_data(response, goalkeeper_title_xpath)
+        print("守门员数据：")
+        print(' '.join(goalkeeper_title))
+        for tr in response.xpath(goalkeeper_tr_xpath):
+            data = extract_data(tr, './/text()')
+            print(' '.join(data))
+
         goalkeeper_name = extract_data(response, goalkeeper_name_xpath)
         goalkeeper_href = extract_data(response, goalkeeper_href_xpath)
 
-        print("守门员数据：")
-        print('\t'.join(goalkeeper_name))
-        print('\t'.join(goalkeeper_href))
-        print('\t'.join(goalkeeper_data))
-        pass
-
-    def parse_player_season_detail_data(self, response, season):
-        """
-        解析个人赛季单场数据
-        """
+        for name, href in zip(goalkeeper_name, goalkeeper_href):
+            print(name, " : ", href)
