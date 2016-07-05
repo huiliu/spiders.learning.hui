@@ -7,6 +7,20 @@
 
 import scrapy
 
+class FootballFixtureItem(scrapy.Item):
+    """
+    足球赛程信息
+    """
+    uuid       = scrapy.Field()
+    t          = scrapy.Field()
+    rand       = scrapy.Field()
+    start_time = scrapy.Field()
+    host_team  = scrapy.Field()
+    score      = scrapy.Field()
+    guest_team = scrapy.Field()
+    address    = scrapy.Field()
+    url        = scrapy.Field()
+
 class SeasonData(scrapy.Item):                                      
     # 常规数据
     c_type = scrapy.Field()     # 比赛类型

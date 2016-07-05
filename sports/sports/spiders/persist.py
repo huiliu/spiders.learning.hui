@@ -681,19 +681,19 @@ class PersistentObj:
                 print(' '.join(records))
         self.conn.commit()
 
-    def InsertComptitionSchedules(self, data):
+    def InsertFootballFixtures(self, data):
         """
         插入赛程信息
         """
         self._check_curson()
-        SQL_Template = """INSERT INTO competition_schedules (
+        SQL_Template = """INSERT INTO fixtures (
                                 uuid,
                                 type,
                                 rand,
                                 start_time,
-                                team_a,
+                                host_team,
                                 score,
-                                team_b,
+                                guest_team,
                                 address,
                                 url
                         ) VALUES (
@@ -727,3 +727,20 @@ class PersistentObj:
                 print(record)
                 #print(' '.join(record))
         self.conn.commit()
+
+    def FindFootballFixture(self, kickoff, host_team):
+        """找到赛程信息
+        """
+        SQL_Template = """SELECT uuid FROM fixtures WHRER
+                            start_time = %d AND host_team = '%s'"""
+        try:
+            sql = SQL_Template % (int(kickoff), host_team)
+            self.cursor(sql)
+
+            uid = self.cursor.fetchone()
+            uid = "" if not uid else uid[0]
+            return uid
+        except Exception as e:
+            print(e)
+            print(sql)
+        return ""

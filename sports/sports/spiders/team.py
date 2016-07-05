@@ -291,7 +291,7 @@ class QqSpider(scrapy.Spider):
         player_info_xpath = '//div[@class="aCont"]//table/tr/td//text()'
 
         data = dict()
-        data['uuid'] = uuid.uuid1()
+        data['uuid'] = uuid.uuid4()
         data['name'] = ''.join(extract_data(response, player_name_xpath))
         num = ''.join(extract_data(response, player_number_xpath))
         data['number'] = int(num) if num else -1

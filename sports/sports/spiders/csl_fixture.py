@@ -73,6 +73,7 @@ class SinaSpider(scrapy.Spider):
 
         teams_xpath = '//p[@class="gl-teams"]'
 
+        # 根据对比球场数据，主客队顺序应该是反了
         host_team_xpath = './/a[@class="gl-host"]/span/text()'
         guest_team_xpath = './/a[@class="gl-guest"]/span/text()'
         score_xpath = './/span[@class="gl-score"]/a//text()'
@@ -95,16 +96,17 @@ class SinaSpider(scrapy.Spider):
         data = []
         for t, host, s, guest, addr in zip(times, host_team, score,
                 guest_team, fields):
-            uid = uuid.uuid1()
+            uid = uuid.uuid4()
             data.append([
                     uid,
                     self.competition_type,
                     rand,
                     t,
-                    host,
-                    s,
+        # 根据对比球场数据，主客队顺序应该是反了
                     guest,
+                    s,
+                    host,
                     "",
                     response.url
                 ])
-        Persist.InsertComptitionSchedules(data)
+        Persist.InsertFootballFixtures(data)
