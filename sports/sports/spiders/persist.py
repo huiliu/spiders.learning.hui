@@ -74,48 +74,6 @@ class PersistentObj:
             print(e)
             print(' '.join(data.items))
 
-    def InsertURL(self, data):
-        """
-        {
-            'url': 'http://xxxx',
-            'type': '俱乐部/球员',
-            'name': '',
-            'number': 10,
-            'position': '前锋',
-            'crawled': 1
-        }
-        """
-        SQL_Template = """INSERT INTO urls(
-                            url,
-                            type,
-                            name,
-                            number,
-                            position,
-                            crawled,
-                        ) VALUES (
-                            '%s',
-                            '%s',
-                            '%s',
-                            %d,
-                            '%s',
-                            %d
-                        )"""
-        sql = SQL_Template % (
-                    data['url'],
-                    data['type'],
-                    data['name'],
-                    data['number'],
-                    data['position'],
-                    data['crawled']
-                )
-        self.cursor.execute(sql)
-        self.conn.commit()
-
-    def OnUrlDownloaded(self, url):
-        SQL_Template = 'UPDATE urls SET crawled=1 WHERE url = "%s"'
-        sql = SQL_Template % url
-        self.cursor.execute(sql)
-        self.commit()
 
     def InsertTeamSeasonSummary(self, name, season, data, url):
         self._check_curson()
@@ -723,3 +681,49 @@ class PersistentObj:
                 print(' '.join(records))
         self.conn.commit()
 
+    def InsertComptitionSchedules(self, data):
+        """
+        插入赛程信息
+        """
+        self._check_curson()
+        SQL_Template = """INSERT INTO competition_schedules (
+                                uuid,
+                                type,
+                                rand,
+                                start_time,
+                                team_a,
+                                score,
+                                team_b,
+                                address,
+                                url
+                        ) VALUES (
+                                '%s',
+                                '%s',
+                                %d,
+                                %d,
+                                '%s',
+                                '%s',
+                                '%s',
+                                '%s',
+                                '%s'
+                        )"""
+        for record in data:
+            try:
+                sql = SQL_Template % (
+                        record[0],
+                        record[1],
+                        record[2],
+                        record[3],
+                        record[4],
+                        record[5],
+                        record[6],
+                        record[7],
+                        record[8]
+                        )
+                self.cursor.execute(sql)
+            except Exception as e:
+                print(e)
+                print(sql)
+                print(record)
+                #print(' '.join(record))
+        self.conn.commit()
