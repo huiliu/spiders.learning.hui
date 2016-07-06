@@ -41,3 +41,2506 @@ In [23]: for td in response.xpath('//table[@id="2015-div1"]/tr[@class="a2"]')[0]
 //div[@id="player-stat-2015"]/table[@id="2015-div2"]/tr[@class="a2"]/td
 防守
 //div[@id="player-stat-2015"]/table[@id="2015-div3"]/tr[@class="a2"]/td
+
+qq.com上的数据分析
+*******************
+赛程
+=======
+分析ajax调用，可以发现下面的URL被JS调用，
+http://soccerdata.sports.qq.com/s/fixture/list.action?time=2012-03-10&compid=208
+其中\ ``time``\ 为日期；\ ``compid``\ 赛事类型（208表示中超）
+
+得到下面的json文件
+
+.. sourcecode:: json
+
+    {
+        "compid": "208",
+        "fixtureDay": "success",
+        "fixtureList": {
+            "tlist": [
+                {
+                "id": "433078",
+                "time": "14:30",
+                "compname": "中超",
+                "homescore": "3",
+                "homeid": "t6909",
+                "awayid": "t6907",
+                "season": "2012",
+                "compid": "208",
+                "homename": "辽宁宏运",
+                "round": "1",
+                "awayname": "河南建业",
+                "awayscore": "1",
+                "period": "fulltime"
+                },
+                {
+                "id": "433081",
+                "time": "15:30",
+                "compname": "中超",
+                "homescore": "1",
+                "homeid": "t594",
+                "awayid": "t6903",
+                "season": "2012",
+                "compid": "208",
+                "homename": "大连实德",
+                "round": "1",
+                "awayname": "长春亚泰",
+                "awayscore": "2",
+                "period": "fulltime"
+                },
+                {
+                "id": "433077",
+                "time": "15:45",
+                "compname": "中超",
+                "homescore": "3",
+                "homeid": "t6905",
+                "awayid": "t1378",
+                "season": "2012",
+                "compid": "208",
+                "homename": "广州富力",
+                "round": "1",
+                "awayname": "北京国安",
+                "awayscore": "1",
+                "period": "fulltime"
+                },
+                {
+                "id": "433079",
+                "time": "19:35",
+                "compname": "中超",
+                "homescore": "1",
+                "homeid": "t1377",
+                "awayid": "t6910",
+                "season": "2012",
+                "compid": "208",
+                "homename": "上海申花",
+                "round": "1",
+                "awayname": "江苏苏宁",
+                "awayscore": "1",
+                "period": "fulltime"
+                },
+                {
+                "id": "433080",
+                "time": "19:40",
+                "compname": "中超",
+                "homescore": "2",
+                "homeid": "t6906",
+                "awayid": "t1379",
+                "season": "2012",
+                "compid": "208",
+                "homename": "北京人和",
+                "round": "1",
+                "awayname": "山东鲁能",
+                "awayscore": "1",
+                "period": "fulltime"
+                }
+            ],
+            "daylist": [
+                "2012-03-07",
+                "2012-03-08",
+                "2012-03-09",
+                "2012-03-10",
+                "2012-03-11",
+                "2012-03-12",
+                "2012-03-13"
+            ],
+            "monthList": []
+        },
+        "fixtureTime": "success",
+        "fixtureTimeList": {
+        "timelist": [
+        {
+        "sort": "0",
+        "count": "5",
+        "maxnum": "317",
+        "month": "03",
+        "year": "2012",
+        "day": "10",
+        "date": "2012-03-10",
+        "week": "周六"
+        },
+        {
+        "sort": "1",
+        "count": "3",
+        "maxnum": "317",
+        "month": "03",
+        "year": "2012",
+        "day": "11",
+        "date": "2012-03-11",
+        "week": "周日"
+        },
+        {
+        "sort": "2",
+        "count": "3",
+        "maxnum": "317",
+        "month": "03",
+        "year": "2012",
+        "day": "16",
+        "date": "2012-03-16",
+        "week": "周五"
+        },
+        {
+        "sort": "3",
+        "count": "3",
+        "maxnum": "317",
+        "month": "03",
+        "year": "2012",
+        "day": "17",
+        "date": "2012-03-17",
+        "week": "周六"
+        },
+        {
+        "sort": "4",
+        "count": "1",
+        "maxnum": "317",
+        "month": "03",
+        "year": "2012",
+        "day": "18",
+        "date": "2012-03-18",
+        "week": "周日"
+        },
+        {
+        "sort": "5",
+        "count": "5",
+        "maxnum": "317",
+        "month": "03",
+        "year": "2012",
+        "day": "24",
+        "date": "2012-03-24",
+        "week": "周六"
+        },
+        {
+        "sort": "6",
+        "count": "3",
+        "maxnum": "317",
+        "month": "03",
+        "year": "2012",
+        "day": "25",
+        "date": "2012-03-25",
+        "week": "周日"
+        }
+        ]
+        },
+        "time": "2012-03-10",
+        "type": null
+    }
+    
+
+赛事实时信息
+=================
+通过分析页面的js调用可以得到
+http://soccerdata.sports.qq.com/s/live.action?mid=847721
+其中\ ``mid``\ 为单场比赛ID，即赛程安排中分配的ID
+返回的json内容为：
+
+.. sourcecode:: json
+
+{
+"mid": "847721",
+"resultinfo": {
+"booking": {
+"home": {
+"player": [
+{
+"id": "p120764",
+"time": "39",
+"type": "y"
+}
+]
+},
+"away": {
+"player": [
+{
+"id": "p223921",
+"time": "20",
+"type": "y"
+},
+{
+"id": "p42596",
+"time": "69",
+"type": "y"
+}
+]
+}
+},
+"commentary": [
+{
+"minute": "00",
+"time": "0 ",
+"second": "00",
+"scoreHome": "1",
+"scoreAway": "1",
+"type": "end 14",
+"period": "全场结束",
+"comment": "全场比赛结束，<a target='_blank' href='../team/1377.htm'>上海申花
+</a> 1:<a target='_blank' href='../team/11481.htm'>延边富德</a> 1。"
+},
+{
+"minute": "93",
+"time": "90'+4'",
+"second": "19",
+"scoreHome": "1",
+"scoreAway": "1",
+"type": "end 2",
+"period": "下半场",
+"comment": "下半场比赛结束，<a target='_blank' href='../team/1377.htm'>上海申
+花</a> 1:<a target='_blank' href='../team/11481.htm'>延边富德</a> 1。"
+},
+{
+"minute": "93",
+"time": "90'+3'",
+"second": "00",
+"scoreHome": "1",
+"scoreAway": "1",
+"type": "substitution",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/224062.htm'>Li Xun</a>换下了<a target='_blank'
+href='../player/98766.htm'>尹比加林</a>。"
+},
+{
+"minute": "91",
+"time": "90'+2'",
+"second": "45",
+"scoreHome": "1",
+"scoreAway": "1",
+"type": "free kick lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/47412.htm'>登巴·巴</a>犯规。"
+},
+{
+"minute": "91",
+"time": "90'+2'",
+"second": "45",
+"scoreHome": "1",
+"scoreAway": "1",
+"type": "free kick won",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/223921.htm'>Hongquan Jiang</a>
+为<a target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球
+。"
+},
+{
+"minute": "91",
+"time": "90'+2'",
+"second": "03",
+"scoreHome": "1",
+"scoreAway": "1",
+"type": "end delay",
+"period": "下半场",
+"comment": "比赛恢复进行。"
+},
+{
+"minute": "90",
+"time": "90'+1'",
+"second": "57",
+"scoreHome": "1",
+"scoreAway": "1",
+"type": "start delay",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a>的<a
+target='_blank' href='../player/98766.htm'>尹比加林</a>受伤，比赛暂停。"
+},
+{
+"minute": "90",
+"time": "90'+1'",
+"second": "19",
+"scoreHome": "1",
+"scoreAway": "1",
+"type": "miss",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/98766.htm'>尹比加林</a>在大禁区右侧右脚射门偏
+左。"
+},
+{
+"minute": "89",
+"time": "90'",
+"second": "39",
+"scoreHome": "1",
+"scoreAway": "1",
+"type": "corner",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/37399.htm'>瓜林</a>将球破坏出底
+线，<a target='_blank' href='../team/11481.htm'>延边富德</a>获得角球。"
+},
+{
+"minute": "89",
+"time": "90'",
+"second": "26",
+"scoreHome": "1",
+"scoreAway": "1",
+"type": "free kick lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113467.htm'>曹赟定</a>犯规。"
+},
+{
+"minute": "89",
+"time": "90'",
+"second": "26",
+"scoreHome": "1",
+"scoreAway": "1",
+"type": "free kick won",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/223921.htm'>Hongquan Jiang</a>
+为<a target='_blank' href='../team/11481.htm'>延边富德</a>在右路赢得任意球。"
+},
+{
+"minute": "87",
+"time": "88'",
+"second": "15",
+"scoreHome": "1",
+"scoreAway": "1",
+"type": "goal",
+"period": "下半场",
+"comment": "进球了!<a target='_blank' href='../team/1377.htm'>上海申花</a>
+1:<a target='_blank' href='../team/11481.htm'>延边富德</a> 1。<a
+target='_blank' href='../team/1377.htm'>上海申花</a><a target='_blank'
+href='../player/47412.htm'>登巴·巴</a>的点球中路右脚射门。"
+},
+{
+"minute": "86",
+"time": "87'",
+"second": "08",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "penalty lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/223937.htm'>Jun Sun</a>在禁区内
+手球，<a target='_blank' href='../team/11481.htm'>延边富德</a>被判点球。"
+},
+{
+"minute": "86",
+"time": "87'",
+"second": "03",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "attempt blocked",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/120764.htm'>金基熙</a>头球在大禁区右侧被挡出，
+<a target='_blank' href='../player/37399.htm'>瓜林</a>传给长传球。"
+},
+{
+"minute": "85",
+"time": "86'",
+"second": "43",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "corner",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/223918.htm'>Tae-Goon Ha</a>将球
+破坏出底线，<a target='_blank' href='../team/1377.htm'>上海申花</a>获得角球。"
+},
+{
+"minute": "85",
+"time": "86'",
+"second": "41",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "attempt blocked",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/47412.htm'>登巴·巴</a>右脚射门在大禁区中央被挡
+出，<a target='_blank' href='../player/37399.htm'>瓜林</a>的传球。"
+},
+{
+"minute": "84",
+"time": "85'",
+"second": "58",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "free kick won",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/113448.htm'>熊飞</a>为<a
+target='_blank' href='../team/1377.htm'>上海申花</a>在右路赢得任意球。"
+},
+{
+"minute": "84",
+"time": "85'",
+"second": "58",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "free kick lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/223924.htm'>Yongchun Wu</a>犯规。"
+},
+{
+"minute": "83",
+"time": "84'",
+"second": "51",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "miss",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/47412.htm'>登巴·巴</a>在大禁区中央头球高出球门
+左上角，来自<a target='_blank' href='../player/120162.htm'>柏佳骏</a>的长传球
+。"
+},
+{
+"minute": "83",
+"time": "84'",
+"second": "02",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "substitution",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113338.htm'>张璐</a>换下了<a target='_blank'
+href='../player/113439.htm'>吕征</a>。"
+},
+{
+"minute": "82",
+"time": "83'",
+"second": "13",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "offside",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a>的<a
+target='_blank' href='../player/113448.htm'>熊飞</a>通过战术配合将球传给<a
+target='_blank' href='../player/113467.htm'>曹赟定</a>，但是他越位了。"
+},
+{
+"minute": "81",
+"time": "82'",
+"second": "56",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "substitution",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/223925.htm'>Shihao Piao</a>换下了<a
+target='_blank' href='../player/205896.htm'>池忠国</a>。"
+},
+{
+"minute": "81",
+"time": "82'",
+"second": "14",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "attempt saved",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/14934.htm'>马丁斯</a>在大禁区中央右下角右脚射
+门被门将扑出，来自<a target='_blank' href='../player/113448.htm'>熊飞</a>的长
+传球。"
+},
+{
+"minute": "75",
+"time": "76'",
+"second": "41",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "substitution",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/14934.htm'>马丁斯</a>换下了<a target='_blank'
+href='../player/77063.htm'>莫雷诺</a>。"
+},
+{
+"minute": "73",
+"time": "74'",
+"second": "49",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "attempt saved",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/77063.htm'>莫雷诺</a>在大禁区中央中路圈顶头球
+被门将扑出，来自<a target='_blank' href='../player/113467.htm'>曹赟定</a>的长
+传球。"
+},
+{
+"minute": "72",
+"time": "73'",
+"second": "58",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "miss",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/77063.htm'>莫雷诺</a>在大禁区中央头球偏左，来
+自<a target='_blank' href='../player/37399.htm'>瓜林</a>的长传球。"
+},
+{
+"minute": "71",
+"time": "72'",
+"second": "26",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "offside",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a>的<a
+target='_blank' href='../player/120162.htm'>柏佳骏</a>通过战术配合将球传给<a
+target='_blank' href='../player/77063.htm'>莫雷诺</a>，但是他越位了。"
+},
+{
+"minute": "71",
+"time": "72'",
+"second": "03",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "offside",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a>的<a
+target='_blank' href='../player/223921.htm'>Hongquan Jiang</a>通过战术配合将球
+传给<a target='_blank' href='../player/155130.htm'>金承大</a>，但是他越位了。"
+},
+{
+"minute": "70",
+"time": "71'",
+"second": "38",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "free kick lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113489.htm'>王赟</a>犯规。"
+},
+{
+"minute": "70",
+"time": "71'",
+"second": "38",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "free kick won",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/98766.htm'>尹比加林</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在对方半场赢得任意球。"
+},
+{
+"minute": "69",
+"time": "70'",
+"second": "56",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "miss",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/77063.htm'>莫雷诺</a>在大禁区中央头球偏右，来
+自<a target='_blank' href='../player/120162.htm'>柏佳骏</a>的长传球。"
+},
+{
+"minute": "68",
+"time": "69'",
+"second": "10",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "yellow card",
+"period": "下半场",
+"comment": "裁判向<a target='_blank' href='../team/11481.htm'>延边富德</a>的<a
+target='_blank' href='../player/42596.htm'>彼得科维奇</a>出示黄牌。"
+},
+{
+"minute": "67",
+"time": "68'",
+"second": "22",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "miss",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113489.htm'>王赟</a>在大禁区外右脚射门高出，来
+自直接任意球。"
+},
+{
+"minute": "66",
+"time": "67'",
+"second": "36",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "free kick won",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/47412.htm'>登巴·巴</a>为<a
+target='_blank' href='../team/1377.htm'>上海申花</a>在对方半场赢得任意球。"
+},
+{
+"minute": "66",
+"time": "67'",
+"second": "36",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "free kick lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/223930.htm'>Yuwen Pei</a>犯规。"
+},
+{
+"minute": "65",
+"time": "66'",
+"second": "35",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "miss",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113467.htm'>曹赟定</a>在大禁区左侧右脚射门偏右
+。"
+},
+{
+"minute": "64",
+"time": "65'",
+"second": "21",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "substitution",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113489.htm'>王赟</a>换下了<a target='_blank'
+href='../player/113205.htm'>秦升</a>。"
+},
+{
+"minute": "64",
+"time": "65'",
+"second": "07",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "miss",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/47412.htm'>登巴·巴</a>在大禁区中央头球高出，来
+自<a target='_blank' href='../player/113467.htm'>曹赟定</a>的长传球。"
+},
+{
+"minute": "63",
+"time": "64'",
+"second": "20",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "free kick won",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/120162.htm'>柏佳骏</a>为<a
+target='_blank' href='../team/1377.htm'>上海申花</a>在左路赢得任意球。"
+},
+{
+"minute": "63",
+"time": "64'",
+"second": "20",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "free kick lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/223921.htm'>Hongquan Jiang</a>犯规。"
+},
+{
+"minute": "61",
+"time": "62'",
+"second": "29",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "miss",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/155130.htm'>金承大</a>在大禁区中央右脚射门高出
+，来自<a target='_blank' href='../player/223918.htm'>Tae-Goon Ha</a>的传球。"
+},
+{
+"minute": "60",
+"time": "61'",
+"second": "16",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "free kick lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a>的<a
+target='_blank' href='../player/47412.htm'>登巴·巴</a>因为手球被判罚任意球。"
+},
+{
+"minute": "59",
+"time": "60'",
+"second": "32",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "corner",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/113205.htm'>秦升</a>将球破坏出
+底线，<a target='_blank' href='../team/11481.htm'>延边富德</a>获得角球。"
+},
+{
+"minute": "59",
+"time": "60'",
+"second": "15",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "free kick lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a>的因为手球
+被判罚任意球。"
+},
+{
+"minute": "58",
+"time": "59'",
+"second": "10",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "attempt saved",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/37399.htm'>瓜林</a>在大禁区外左下角右脚射门被
+门将扑出，来自<a target='_blank' href='../player/113467.htm'>曹赟定</a>的传球
+。"
+},
+{
+"minute": "57",
+"time": "58'",
+"second": "41",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "corner",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/223927.htm'>Min Cui</a>将球破坏
+出底线，<a target='_blank' href='../team/1377.htm'>上海申花</a>获得角球。"
+},
+{
+"minute": "56",
+"time": "57'",
+"second": "50",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "miss",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/223918.htm'>Tae-Goon Ha</a>在大禁区中央左脚射
+门偏右，来自<a target='_blank' href='../player/223921.htm'>Hongquan Jiang</a>
+的长传球。"
+},
+{
+"minute": "55",
+"time": "56'",
+"second": "09",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "free kick lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113467.htm'>曹赟定</a>犯规。"
+},
+{
+"minute": "55",
+"time": "56'",
+"second": "09",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "free kick won",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/205896.htm'>池忠国</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球。"
+},
+{
+"minute": "53",
+"time": "54'",
+"second": "40",
+"scoreHome": "0",
+"scoreAway": "1",
+"type": "goal",
+"period": "下半场",
+"comment": "进球了!<a target='_blank' href='../team/1377.htm'>上海申花</a>
+0:<a target='_blank' href='../team/11481.htm'>延边富德</a> 1。<a
+target='_blank' href='../team/11481.htm'>延边富德</a><a target='_blank'
+href='../player/223918.htm'>Tae-Goon Ha</a>在大禁区右侧右脚射门中路,<a
+target='_blank' href='../player/223930.htm'>Yuwen Pei</a>助攻。"
+},
+{
+"minute": "52",
+"time": "53'",
+"second": "30",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "end delay",
+"period": "下半场",
+"comment": "比赛恢复进行。"
+},
+{
+"minute": "52",
+"time": "53'",
+"second": "05",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "start delay",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a>的<a
+target='_blank' href='../player/223929.htm'>池文一</a>受伤，比赛暂停。"
+},
+{
+"minute": "51",
+"time": "52'",
+"second": "35",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/77063.htm'>莫雷诺</a>犯规。"
+},
+{
+"minute": "51",
+"time": "52'",
+"second": "35",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/223929.htm'>池文一</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球。"
+},
+{
+"minute": "50",
+"time": "51'",
+"second": "35",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113336.htm'>毕津浩</a>犯规。"
+},
+{
+"minute": "50",
+"time": "51'",
+"second": "35",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/223930.htm'>Yuwen Pei</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在右路赢得任意球。"
+},
+{
+"minute": "49",
+"time": "50'",
+"second": "12",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "attempt saved",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113467.htm'>曹赟定</a>在大禁区外中路右脚射门被
+门将扑出，来自<a target='_blank' href='../player/120162.htm'>柏佳骏</a>的传球
+。"
+},
+{
+"minute": "48",
+"time": "49'",
+"second": "29",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "end delay",
+"period": "下半场",
+"comment": "比赛恢复进行。"
+},
+{
+"minute": "47",
+"time": "48'",
+"second": "54",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "start delay",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a>的<a
+target='_blank' href='../player/223929.htm'>池文一</a>受伤，比赛暂停。"
+},
+{
+"minute": "47",
+"time": "48'",
+"second": "23",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/47412.htm'>登巴·巴</a>犯规。"
+},
+{
+"minute": "47",
+"time": "48'",
+"second": "23",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/223929.htm'>池文一</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球。"
+},
+{
+"minute": "46",
+"time": "47'",
+"second": "59",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "attempt saved",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/77063.htm'>莫雷诺</a>在大禁区外右下角左脚射门
+被门将扑出，来自<a target='_blank' href='../player/37399.htm'>瓜林</a>的传球。
+"
+},
+{
+"minute": "46",
+"time": "47'",
+"second": "03",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "下半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113439.htm'>吕征</a>犯规。"
+},
+{
+"minute": "46",
+"time": "47'",
+"second": "03",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "下半场",
+"comment": "<a target='_blank' href='../player/155130.htm'>金承大</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球。"
+},
+{
+"minute": "45",
+"time": "0 ",
+"second": "00",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "start",
+"period": "下半场",
+"comment": "下半场比赛开始,<a target='_blank' href='../team/1377.htm'>上海申花
+</a> 0:<a target='_blank' href='../team/11481.htm'>延边富德</a> 0。"
+},
+{
+"minute": "47",
+"time": "45'+3'",
+"second": "16",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "end 1",
+"period": "上半场",
+"comment": "上半场比赛结束，<a target='_blank' href='../team/1377.htm'>上海申
+花</a> 0:<a target='_blank' href='../team/11481.htm'>延边富德</a> 0。"
+},
+{
+"minute": "47",
+"time": "45'+2'",
+"second": "00",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "miss",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/47412.htm'>登巴·巴</a>在球门线跟前右脚射门擦右
+立柱偏出，来自<a target='_blank' href='../player/113439.htm'>吕征</a>的长传球
+。"
+},
+{
+"minute": "43",
+"time": "44'",
+"second": "28",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "corner",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/113448.htm'>熊飞</a>将球破坏出
+底线，<a target='_blank' href='../team/11481.htm'>延边富德</a>获得角球。"
+},
+{
+"minute": "42",
+"time": "43'",
+"second": "55",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "corner",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/120764.htm'>金基熙</a>将球破坏
+出底线，<a target='_blank' href='../team/11481.htm'>延边富德</a>获得角球。"
+},
+{
+"minute": "42",
+"time": "43'",
+"second": "53",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "attempt blocked",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/98766.htm'>尹比加林</a>右脚射门在大禁区左侧被
+挡出，<a target='_blank' href='../player/223918.htm'>Tae-Goon Ha</a>的传球。"
+},
+{
+"minute": "41",
+"time": "42'",
+"second": "59",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/47412.htm'>登巴·巴</a>犯规。"
+},
+{
+"minute": "41",
+"time": "42'",
+"second": "59",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223929.htm'>池文一</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球。"
+},
+{
+"minute": "41",
+"time": "42'",
+"second": "33",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "corner",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/42596.htm'>彼得科维奇</a>将球破
+坏出底线，<a target='_blank' href='../team/1377.htm'>上海申花</a>获得角球。"
+},
+{
+"minute": "41",
+"time": "42'",
+"second": "14",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "attempt blocked",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/77063.htm'>莫雷诺</a>左脚射门在大禁区中央被挡
+出，<a target='_blank' href='../player/113467.htm'>曹赟定</a>传给长传球。"
+},
+{
+"minute": "38",
+"time": "39'",
+"second": "35",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "yellow card",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a>的<a
+target='_blank' href='../player/120764.htm'>金基熙</a>因为恶意犯规，被裁判出示
+黄牌。"
+},
+{
+"minute": "38",
+"time": "39'",
+"second": "31",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/120764.htm'>金基熙</a>犯规。"
+},
+{
+"minute": "38",
+"time": "39'",
+"second": "31",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223918.htm'>Tae-Goon Ha</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球。"
+},
+{
+"minute": "36",
+"time": "37'",
+"second": "46",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "miss",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/223930.htm'>Yuwen Pei</a>在35码外右脚射门偏右
+，来自<a target='_blank' href='../player/205896.htm'>池忠国</a>的传球。"
+},
+{
+"minute": "35",
+"time": "36'",
+"second": "49",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113336.htm'>毕津浩</a>犯规。"
+},
+{
+"minute": "35",
+"time": "36'",
+"second": "49",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223918.htm'>Tae-Goon Ha</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球。"
+},
+{
+"minute": "31",
+"time": "32'",
+"second": "05",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "miss",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113205.htm'>秦升</a>在大禁区外右脚射门偏左。"
+},
+{
+"minute": "30",
+"time": "31'",
+"second": "36",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "attempt blocked",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113467.htm'>曹赟定</a>右脚射门在大禁区左侧被挡
+出，<a target='_blank' href='../player/77063.htm'>莫雷诺</a>的传球。"
+},
+{
+"minute": "29",
+"time": "30'",
+"second": "15",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/47412.htm'>登巴·巴</a>犯规。"
+},
+{
+"minute": "29",
+"time": "30'",
+"second": "15",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223921.htm'>Hongquan Jiang</a>
+为<a target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球
+。"
+},
+{
+"minute": "28",
+"time": "29'",
+"second": "50",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/77063.htm'>莫雷诺</a>犯规。"
+},
+{
+"minute": "28",
+"time": "29'",
+"second": "50",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/98766.htm'>尹比加林</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球。"
+},
+{
+"minute": "28",
+"time": "29'",
+"second": "36",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "attempt blocked",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/77063.htm'>莫雷诺</a>左脚射门在大禁区外被挡出
+。"
+},
+{
+"minute": "27",
+"time": "28'",
+"second": "54",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/77063.htm'>莫雷诺</a>为<a
+target='_blank' href='../team/1377.htm'>上海申花</a>在对方半场赢得任意球。"
+},
+{
+"minute": "27",
+"time": "28'",
+"second": "54",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/98766.htm'>尹比加林</a>犯规。"
+},
+{
+"minute": "27",
+"time": "28'",
+"second": "43",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "attempt saved",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/47412.htm'>登巴·巴</a>在小禁区右侧右下角右脚射
+门被门将扑出，来自<a target='_blank' href='../player/113336.htm'>毕津浩</a>的
+传球。"
+},
+{
+"minute": "27",
+"time": "28'",
+"second": "40",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "miss",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113205.htm'>秦升</a>在大禁区左侧右脚射门偏右，
+来自<a target='_blank' href='../player/37399.htm'>瓜林</a>的长传球角球。"
+},
+{
+"minute": "27",
+"time": "28'",
+"second": "16",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "corner",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/155130.htm'>金承大</a>将球破坏
+出底线，<a target='_blank' href='../team/1377.htm'>上海申花</a>获得角球。"
+},
+{
+"minute": "27",
+"time": "28'",
+"second": "01",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "corner",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223924.htm'>Yongchun Wu</a>将球
+破坏出底线，<a target='_blank' href='../team/1377.htm'>上海申花</a>获得角球。"
+},
+{
+"minute": "25",
+"time": "26'",
+"second": "30",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "corner",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223927.htm'>Min Cui</a>将球破坏
+出底线，<a target='_blank' href='../team/1377.htm'>上海申花</a>获得角球。"
+},
+{
+"minute": "21",
+"time": "22'",
+"second": "14",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "corner",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/120162.htm'>柏佳骏</a>将球破坏
+出底线，<a target='_blank' href='../team/11481.htm'>延边富德</a>获得角球。"
+},
+{
+"minute": "20",
+"time": "21'",
+"second": "45",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113439.htm'>吕征</a>犯规。"
+},
+{
+"minute": "20",
+"time": "21'",
+"second": "45",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223924.htm'>Yongchun Wu</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球。"
+},
+{
+"minute": "19",
+"time": "20'",
+"second": "54",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "miss",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/37399.htm'>瓜林</a>在大禁区外右脚射门偏右，来
+自<a target='_blank' href='../player/47412.htm'>登巴·巴</a>的直接任意球。"
+},
+{
+"minute": "19",
+"time": "20'",
+"second": "04",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "yellow card",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a>的<a
+target='_blank' href='../player/223921.htm'>Hongquan Jiang</a>因为恶意犯规，被
+裁判出示黄牌。"
+},
+{
+"minute": "18",
+"time": "19'",
+"second": "29",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/77063.htm'>莫雷诺</a>为<a
+target='_blank' href='../team/1377.htm'>上海申花</a>在对方半场赢得任意球。"
+},
+{
+"minute": "18",
+"time": "19'",
+"second": "29",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/223921.htm'>Hongquan Jiang</a>犯规。"
+},
+{
+"minute": "16",
+"time": "17'",
+"second": "43",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "attempt blocked",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113448.htm'>熊飞</a>左脚射门在大禁区外被挡出。
+"
+},
+{
+"minute": "16",
+"time": "17'",
+"second": "07",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "corner",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223929.htm'>池文一</a>将球破坏
+出底线，<a target='_blank' href='../team/1377.htm'>上海申花</a>获得角球。"
+},
+{
+"minute": "16",
+"time": "17'",
+"second": "04",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "attempt saved",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/47412.htm'>登巴·巴</a>在大禁区左侧右下角右脚射
+门被门将扑出，来自<a target='_blank' href='../player/113467.htm'>曹赟定</a>的
+传球。"
+},
+{
+"minute": "15",
+"time": "16'",
+"second": "02",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/113336.htm'>毕津浩</a>为<a
+target='_blank' href='../team/1377.htm'>上海申花</a>在已方半场赢得任意球。"
+},
+{
+"minute": "15",
+"time": "16'",
+"second": "02",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/155130.htm'>金承大</a>犯规。"
+},
+{
+"minute": "14",
+"time": "15'",
+"second": "23",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/77063.htm'>莫雷诺</a>犯规。"
+},
+{
+"minute": "14",
+"time": "15'",
+"second": "23",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223930.htm'>Yuwen Pei</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球。"
+},
+{
+"minute": "12",
+"time": "13'",
+"second": "47",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/37399.htm'>瓜林</a>犯规。"
+},
+{
+"minute": "12",
+"time": "13'",
+"second": "47",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223937.htm'>Jun Sun</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球。"
+},
+{
+"minute": "11",
+"time": "12'",
+"second": "58",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "miss",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113336.htm'>毕津浩</a>在大禁区中央右脚射门偏右
+，来自<a target='_blank' href='../player/113467.htm'>曹赟定</a>的长传球角球。"
+},
+{
+"minute": "11",
+"time": "12'",
+"second": "29",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "corner",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223921.htm'>Hongquan Jiang</a>
+将球破坏出底线，<a target='_blank' href='../team/1377.htm'>上海申花</a>获得角
+球。"
+},
+{
+"minute": "10",
+"time": "11'",
+"second": "43",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113467.htm'>曹赟定</a>犯规。"
+},
+{
+"minute": "10",
+"time": "11'",
+"second": "43",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/98766.htm'>尹比加林</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在右路赢得任意球。"
+},
+{
+"minute": "10",
+"time": "11'",
+"second": "01",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/113467.htm'>曹赟定</a>犯规。"
+},
+{
+"minute": "10",
+"time": "11'",
+"second": "01",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223921.htm'>Hongquan Jiang</a>
+为<a target='_blank' href='../team/11481.htm'>延边富德</a>在已方半场赢得任意球
+。"
+},
+{
+"minute": "06",
+"time": "7'",
+"second": "43",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/223937.htm'>Jun Sun</a>犯规。"
+},
+{
+"minute": "06",
+"time": "7'",
+"second": "43",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/120162.htm'>柏佳骏</a>为<a
+target='_blank' href='../team/1377.htm'>上海申花</a>在已方半场赢得任意球。"
+},
+{
+"minute": "05",
+"time": "6'",
+"second": "59",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223937.htm'>Jun Sun</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在右路赢得任意球。"
+},
+{
+"minute": "05",
+"time": "6'",
+"second": "59",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/120162.htm'>柏佳骏</a>犯规。"
+},
+{
+"minute": "03",
+"time": "4'",
+"second": "38",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/1377.htm'>上海申花</a><a
+target='_blank' href='../player/120764.htm'>金基熙</a>犯规。"
+},
+{
+"minute": "03",
+"time": "4'",
+"second": "38",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223918.htm'>Tae-Goon Ha</a>为<a
+target='_blank' href='../team/11481.htm'>延边富德</a>在左路赢得任意球。"
+},
+{
+"minute": "02",
+"time": "3'",
+"second": "45",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "offside",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a>的<a
+target='_blank' href='../player/205896.htm'>池忠国</a>通过战术配合将球传给<a
+target='_blank' href='../player/155130.htm'>金承大</a>，但是他越位了。"
+},
+{
+"minute": "01",
+"time": "2'",
+"second": "05",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "corner",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/223937.htm'>Jun Sun</a>将球破坏
+出底线，<a target='_blank' href='../team/1377.htm'>上海申花</a>获得角球。"
+},
+{
+"minute": "00",
+"time": "1'",
+"second": "39",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick lost",
+"period": "上半场",
+"comment": "<a target='_blank' href='../team/11481.htm'>延边富德</a><a
+target='_blank' href='../player/223930.htm'>Yuwen Pei</a>犯规。"
+},
+{
+"minute": "00",
+"time": "1'",
+"second": "39",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "free kick won",
+"period": "上半场",
+"comment": "<a target='_blank' href='../player/77063.htm'>莫雷诺</a>为<a
+target='_blank' href='../team/1377.htm'>上海申花</a>在对方半场赢得任意球。"
+},
+{
+"minute": "00",
+"time": "0 ",
+"second": "00",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "start",
+"period": "上半场",
+"comment": "上半场比赛开始。"
+},
+{
+"minute": "00",
+"time": "00",
+"second": "00",
+"scoreHome": "0",
+"scoreAway": "0",
+"type": "lineup",
+"period": "未开赛",
+"comment": "两队首发名单已经公布，球员们正在热身。"
+}
+],
+"substitution": {
+"home": {
+"player": [
+{
+"time": "65",
+"off": "p113205",
+"on": "p113489"
+},
+{
+"time": "76",
+"off": "p77063",
+"on": "p14934"
+},
+{
+"time": "84",
+"off": "p113439",
+"on": "p113338"
+}
+]
+},
+"away": {
+"player": [
+{
+"time": "82",
+"off": "p205896",
+"on": "p223925"
+},
+{
+"time": "93",
+"off": "p98766",
+"on": "p224062"
+}
+]
+}
+},
+"matchinfo": {
+"id": "847721",
+"home": {},
+"away": {},
+"compname": "中超",
+"homeid": "t1377",
+"awayid": "t11481",
+"compid": "208",
+"homename": "上海申花",
+"awayname": "延边富德",
+"datetime": "2016-03-05 19:35"
+},
+"goal": {
+"home": {
+"player": [
+{
+"id": "p47412",
+"time": "88",
+"type": "penalty"
+}
+]
+},
+"away": {
+"player": [
+{
+"id": "p223918",
+"time": "54",
+"type": "goal"
+}
+]
+}
+},
+"stat": {
+"home": {
+"f": "21",
+"g": "1",
+"player": [
+{
+"id": "p27564",
+"tc": "15",
+"ap": "7",
+"p": "11",
+"gc": "1",
+"fp": "1"
+},
+{
+"f": "2",
+"id": "p120764",
+"t": "3",
+"s": "1",
+"tc": "51",
+"ap": "31",
+"tw": "2",
+"p": "35",
+"yb": "1",
+"gc": "1",
+"fp": "5",
+"i": "2"
+},
+{
+"id": "p113448",
+"t": "2",
+"s": "1",
+"tc": "1",
+"ap": "32",
+"tw": "2",
+"p": "40",
+"gc": "1",
+"kp": "1",
+"wf": "1",
+"fp": "2",
+"i": "1"
+},
+{
+"f": "2",
+"id": "p113336",
+"t": "1",
+"s": "1",
+"tc": "43",
+"ap": "23",
+"p": "28",
+"gc": "1",
+"kp": "1",
+"wf": "1",
+"fp": "6",
+"i": "2"
+},
+{
+"f": "1",
+"id": "p120162",
+"t": "2",
+"tc": "74",
+"ap": "37",
+"tw": "2",
+"p": "47",
+"gc": "1",
+"kp": "3",
+"wf": "2",
+"fp": "3"
+},
+{
+"f": "2",
+"id": "p113439",
+"tc": "3",
+"ap": "31",
+"p": "36",
+"gc": "1",
+"kp": "1",
+"fp": "7",
+"i": "1"
+},
+{
+"id": "p113205",
+"t": "5",
+"s": "2",
+"tc": "53",
+"ap": "30",
+"tw": "3",
+"p": "42",
+"gc": "1",
+"fp": "4",
+"i": "1"
+},
+{
+"f": "1",
+"so": "1",
+"gc": "1",
+"kp": "5",
+"i": "3",
+"id": "p37399",
+"t": "2",
+"s": "2",
+"ap": "67",
+"tc": "1",
+"tw": "2",
+"p": "76",
+"fp": "8"
+},
+{
+"f": "3",
+"so": "2",
+"gc": "1",
+"kp": "1",
+"o": "1",
+"i": "2",
+"id": "p77063",
+"t": "1",
+"s": "6",
+"ap": "29",
+"tc": "2",
+"tw": "1",
+"p": "36",
+"wf": "3",
+"fp": "10"
+},
+{
+"f": "4",
+"id": "p113467",
+"s": "3",
+"so": "1",
+"tc": "3",
+"ap": "50",
+"p": "55",
+"gc": "1",
+"kp": "6",
+"o": "1",
+"fp": "11",
+"i": "1"
+},
+{
+"f": "5",
+"id": "p47412",
+"g": "1",
+"t": "1",
+"s": "7",
+"so": "3",
+"tc": "37",
+"ap": "15",
+"tw": "1",
+"p": "20",
+"gc": "1",
+"kp": "1",
+"wf": "1",
+"fp": "9"
+},
+{
+"id": "p113462",
+"fp": "0"
+},
+{
+"id": "p113338",
+"tc": "2",
+"ap": "1",
+"p": "1",
+"fp": "0"
+},
+{
+"id": "p14934",
+"s": "1",
+"so": "1",
+"tc": "2",
+"ap": "3",
+"p": "4",
+"fp": "0"
+},
+{
+"id": "p212911",
+"fp": "0"
+},
+{
+"f": "1",
+"id": "p113489",
+"s": "1",
+"tc": "15",
+"ap": "10",
+"p": "13",
+"fp": "0"
+},
+{
+"id": "p113211",
+"fp": "0"
+},
+{
+"id": "p113325",
+"fp": "0"
+}
+],
+"c": "9",
+"so": "8",
+"yb": "1",
+"gc": "1",
+"o": "2",
+"fk": "8",
+"fm": "4141",
+"t": "17",
+"s": "25",
+"ap": "49",
+"p": "444",
+"pp": "59.8"
+},
+"away": {
+"f": "10",
+"g": "1",
+"player": [
+{
+"id": "p223929",
+"tc": "43",
+"ap": "7",
+"p": "22",
+"gc": "1",
+"sv": "7",
+"wf": "3",
+"fp": "1"
+},
+{
+"f": "1",
+"id": "p223924",
+"t": "3",
+"tc": "47",
+"ap": "19",
+"tw": "3",
+"p": "30",
+"gc": "1",
+"wf": "1",
+"fp": "3",
+"i": "3"
+},
+{
+"id": "p223927",
+"t": "1",
+"tc": "34",
+"ap": "8",
+"tw": "1",
+"p": "17",
+"gc": "1",
+"fp": "5",
+"i": "3"
+},
+{
+"f": "2",
+"id": "p223921",
+"t": "1",
+"tc": "45",
+"ap": "13",
+"p": "21",
+"yb": "1",
+"kp": "1",
+"wf": "4",
+"fp": "2",
+"i": "1"
+},
+{
+"id": "p42596",
+"t": "1",
+"tc": "48",
+"ap": "12",
+"tw": "1",
+"p": "35",
+"yb": "1",
+"gc": "1",
+"fp": "6",
+"i": "2"
+},
+{
+"f": "2",
+"id": "p223937",
+"tc": "2",
+"ap": "21",
+"p": "24",
+"gc": "1",
+"wf": "2",
+"fp": "7",
+"i": "1"
+},
+{
+"f": "1",
+"id": "p155130",
+"s": "1",
+"tc": "24",
+"ap": "13",
+"p": "16",
+"gc": "1",
+"o": "2",
+"wf": "1",
+"fp": "11",
+"i": "1"
+},
+{
+"f": "1",
+"id": "p98766",
+"t": "3",
+"s": "2",
+"tc": "2",
+"ap": "44",
+"tw": "3",
+"p": "56",
+"gc": "1",
+"wf": "3",
+"fp": "4",
+"i": "1"
+},
+{
+"id": "p205896",
+"tc": "44",
+"ap": "29",
+"p": "37",
+"kp": "1",
+"wf": "1",
+"fp": "8"
+},
+{
+"f": "2",
+"a": "1",
+"gc": "1",
+"kp": "1",
+"i": "1",
+"id": "p223930",
+"t": "1",
+"s": "1",
+"ap": "25",
+"tc": "45",
+"tw": "1",
+"p": "29",
+"wf": "2",
+"fp": "10"
+},
+{
+"id": "p223918",
+"g": "1",
+"s": "2",
+"so": "1",
+"tc": "2",
+"ap": "21",
+"p": "25",
+"gc": "1",
+"kp": "2",
+"wf": "3",
+"fp": "9"
+},
+{
+"id": "p223925",
+"tc": "8",
+"ap": "4",
+"p": "6",
+"gc": "1",
+"fp": "0",
+"i": "1"
+},
+{
+"id": "p223919",
+"fp": "0"
+},
+{
+"id": "p223931",
+"fp": "0"
+},
+{
+"id": "p224062",
+"fp": "0"
+},
+{
+"id": "p223922",
+"fp": "0"
+},
+{
+"id": "p221344",
+"fp": "0"
+},
+{
+"id": "p113190",
+"fp": "0"
+}
+],
+"c": "5",
+"so": "1",
+"yb": "2",
+"a": "1",
+"gc": "1",
+"o": "2",
+"fk": "20",
+"fm": "451",
+"t": "10",
+"s": "6",
+"ap": "11",
+"p": "318",
+"pp": "40.2"
+},
+"time": "94",
+"homescore": "1",
+"period": "fulltime",
+"awayscore": "1",
+"lastperiod": "6"
+},
+"lineup": {
+"home": {
+"player": [
+{
+"id": "p27564",
+"status": "首发",
+"posi": "门将",
+"engname": "Li Shuai",
+"name": "李帅",
+"snum": "27",
+"y": "156",
+"x": "0"
+},
+{
+"id": "p120764",
+"status": "首发",
+"posi": "后卫",
+"engname": "Kim Kee-Hee",
+"name": "金基熙",
+"snum": "4",
+"y": "196",
+"x": "59"
+},
+{
+"id": "p113448",
+"status": "首发",
+"posi": "后卫",
+"engname": "Xiong Fei",
+"name": "熊飞",
+"snum": "2",
+"y": "275",
+"x": "59"
+},
+{
+"id": "p113336",
+"status": "首发",
+"posi": "后卫",
+"engname": "Bi Jinghao",
+"name": "毕津浩",
+"snum": "33",
+"y": "117",
+"x": "59"
+},
+{
+"id": "p120162",
+"status": "首发",
+"posi": "后卫",
+"engname": "Bai Jiajun",
+"name": "柏佳骏",
+"snum": "23",
+"y": "37",
+"x": "59"
+},
+{
+"id": "p113439",
+"status": "首发",
+"posi": "前卫",
+"engname": "Lü Zheng",
+"name": "吕征",
+"snum": "11",
+"y": "275",
+"x": "142"
+},
+{
+"id": "p113205",
+"status": "首发",
+"posi": "前卫",
+"engname": "Qin Sheng",
+"name": "秦升",
+"snum": "26",
+"y": "156",
+"x": "109"
+},
+{
+"id": "p37399",
+"status": "首发",
+"posi": "前卫",
+"engname": "Fredy Guarín",
+"name": "瓜林",
+"snum": "13",
+"y": "196",
+"x": "158"
+},
+{
+"id": "p77063",
+"status": "首发",
+"posi": "前卫",
+"engname": "Giovanni Moreno",
+"name": "莫雷诺",
+"snum": "10",
+"y": "117",
+"x": "158"
+},
+{
+"id": "p113467",
+"status": "首发",
+"posi": "前卫",
+"engname": "Cao Yunding",
+"name": "曹赟定",
+"snum": "28",
+"y": "37",
+"x": "142"
+},
+{
+"id": "p47412",
+"status": "首发",
+"posi": "前锋",
+"engname": "Demba Ba",
+"name": "登巴·巴",
+"snum": "9",
+"y": "156",
+"x": "188"
+},
+{
+"id": "p113462",
+"status": "替补",
+"posi": "替补",
+"engname": "Qiu Shengjiong",
+"name": "邱盛炯",
+"snum": "22"
+},
+{
+"id": "p113338",
+"status": "替补",
+"posi": "替补",
+"engname": "Zhang Lu",
+"name": "张璐",
+"snum": "8"
+},
+{
+"id": "p14934",
+"status": "替补",
+"posi": "替补",
+"engname": "Obafemi Martins",
+"name": "马丁斯",
+"snum": "17"
+},
+{
+"id": "p212911",
+"status": "替补",
+"posi": "替补",
+"engname": "Xu Junmin",
+"name": "徐骏敏",
+"snum": "32"
+},
+{
+"id": "p113489",
+"status": "替补",
+"posi": "替补",
+"engname": "Wang Yun",
+"name": "王赟",
+"snum": "20"
+},
+{
+"id": "p113211",
+"status": "替补",
+"posi": "替补",
+"engname": "Li Jianbin",
+"name": "李建滨",
+"snum": "3"
+},
+{
+"id": "p113325",
+"status": "替补",
+"posi": "替补",
+"engname": "Wang Shouting",
+"name": "王寿挺",
+"snum": "5"
+}
+],
+"chiefcoachname": "",
+"chiefcoachid": "man109",
+"formation": "4141"
+},
+"away": {
+"player": [
+{
+"id": "p223929",
+"status": "首发",
+"posi": "门将",
+"engname": "Chi Wenyi",
+"name": "池文一",
+"snum": "22",
+"y": "156",
+"x": "211"
+},
+{
+"id": "p223924",
+"status": "首发",
+"posi": "后卫",
+"engname": "Wu Yongchun",
+"name": "吴永春",
+"snum": "16",
+"y": "265",
+"x": "161"
+},
+{
+"id": "p223927",
+"status": "首发",
+"posi": "后卫",
+"engname": "Cui Min",
+"name": "崔民",
+"snum": "20",
+"y": "120",
+"x": "161"
+},
+{
+"id": "p223921",
+"status": "首发",
+"posi": "后卫",
+"engname": "Jiang Hongquan",
+"name": "姜洪权",
+"snum": "12",
+"y": "47",
+"x": "161"
+},
+{
+"id": "p42596",
+"status": "首发",
+"posi": "后卫",
+"engname": "Nikola Petkovic",
+"name": "尼古拉",
+"snum": "5",
+"y": "192",
+"x": "161"
+},
+{
+"id": "p223937",
+"status": "首发",
+"posi": "前卫",
+"engname": "Sun Jun",
+"name": "孙君",
+"snum": "33",
+"y": "37",
+"x": "87"
+},
+{
+"id": "p155130",
+"status": "首发",
+"posi": "前卫",
+"engname": "Kim Seung-Dae",
+"name": "金承大",
+"snum": "9",
+"y": "275",
+"x": "87"
+},
+{
+"id": "p98766",
+"status": "首发",
+"posi": "前卫",
+"engname": "Yoon Bit-Garam",
+"name": "尹比加兰",
+"snum": "14",
+"y": "130",
+"x": "111"
+},
+{
+"id": "p205896",
+"status": "首发",
+"posi": "前卫",
+"engname": "Chi Zhongguo",
+"name": "池忠国",
+"snum": "8",
+"y": "182",
+"x": "111"
+},
+{
+"id": "p223930",
+"status": "首发",
+"posi": "前卫",
+"engname": "Pei Yuwen",
+"name": "裴育文",
+"snum": "23",
+"y": "156",
+"x": "62"
+},
+{
+"id": "p223918",
+"status": "首发",
+"posi": "前锋",
+"engname": "Ha Tae-Goon",
+"name": "河太均",
+"snum": "18",
+"y": "156",
+"x": "8"
+},
+{
+"id": "p223925",
+"status": "替补",
+"posi": "替补",
+"engname": "Piao Shihao",
+"name": "朴世豪",
+"snum": "17"
+},
+{
+"id": "p223919",
+"status": "替补",
+"posi": "替补",
+"engname": "Yin Guang",
+"name": "尹光",
+"snum": "1"
+},
+{
+"id": "p223931",
+"status": "替补",
+"posi": "替补",
+"engname": "Li Haojie",
+"name": "李浩杰",
+"snum": "24"
+},
+{
+"id": "p224062",
+"status": "替补",
+"posi": "替补",
+"engname": "Li Xun",
+"name": "李勋",
+"snum": "6"
+},
+{
+"id": "p223922",
+"status": "替补",
+"posi": "替补",
+"engname": "Jin Bo",
+"name": "金波",
+"snum": "13"
+},
+{
+"id": "p221344",
+"status": "替补",
+"posi": "替补",
+"engname": "Han Guanghui",
+"name": "韩光徽",
+"snum": "7"
+},
+{
+"id": "p113190",
+"status": "替补",
+"posi": "替补",
+"engname": "Zhao Ming",
+"name": "赵铭",
+"snum": "4"
+}
+],
+"chiefcoachname": "",
+"chiefcoachid": "man46445",
+"formation": "451"
+}
+}
+}
+}

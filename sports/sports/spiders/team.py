@@ -76,6 +76,7 @@ class QqSpider(scrapy.Spider):
                 print(URL)
                 assert False
 
+        # 递归页面其它链接
         for url, status in self.teams_url.items():
             if not status:
                 print(url)
