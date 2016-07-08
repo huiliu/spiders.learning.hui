@@ -6,38 +6,21 @@
 # 进而可以算得此场赛事中球员的得分
 # ------------------------------------------------
 import scrapy
-import pymongo
-import MySQLdb
+import PersistMongo
 
+# TODO:
+#   更新数据库相关信息
+config = {
+            'host': '10.1.0.6',
+            'port': 27017,
+            'db': 'football',
+            'fixture': 'fixtures',  # 赛程collection
+            'match': 'mid'          # 比赛详细统计collection
+        }
 
-class DB:
-    def __init__(self):
-        self.client = pymongo.MongoClient('10.1.0.6', 27017)
-        self.live_collection = self.client['football'].get_collection('mid')
+db = PersistMongo.PersistLiveData(config)
 
-    def InsertLive(self, data):
-        """
-            插入赛程信息
-        """
-        if isinstance(data, dict):
-            self.live_collection.insert_one(data)
-
-    def get_fixture_match_id(self):
-        cur = self.client['football']['fixtures'].find({}, {'_id': 0, 'id': 1})
-
-        return cur
-
-    def get_downloaded_match_id(self):
-        # 赛事实况
-        ret = self.live_collection.find({}, {'_id': 0, 'mid': 1})
-        matchids = list()
-        for item in ret:
-            matchids.append(item['mid'])
-        return matchids
-
-db = DB()
-
-class JsonQqSpider(scrapy.Spider):
+class QqLiveSpider(scrapy.Spider):
     name = "live"
     allowed_domains = ["soccerdata.sports.qq.com"]
     start_urls = (
@@ -49,7 +32,7 @@ class JsonQqSpider(scrapy.Spider):
     def __init__(self):
         urls = []
         match_ids = db.get_downloaded_match_id()
-        for match in db.get_fixture_match_id():
+        for match in db.get_fixture_match_id({}):
             if match['id'] not in match_ids:
                 urls.append(self.url_tpl % match['id'])
 

@@ -8,6 +8,8 @@
 import scrapy
 import PersistMongo
 
+# TODO:
+#   更新数据库相关信息
 dbcfg = {
             'host': '10.1.0.6',
             'port': 27017,

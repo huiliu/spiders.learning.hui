@@ -31,6 +31,8 @@ class ImgQqSpider(scrapy.Spider):
         ## 球员图像地址URL模板
         ## %d 为球员ID
         url_tpl = 'http://mat1.gtimg.com/sports/soccerdata/images/player/%d.jpg'
+        # TODO:
+        #   更新数据库和collection
         player_template = self.client['football'].get_collection('player_template')
         urls = []
         for doc in player_template.find({}, {'_id':0, 'id': 1}):
@@ -44,6 +46,8 @@ class ImgQqSpider(scrapy.Spider):
             抓取俱乐部头像
         """
         url_tpl = 'http://mat1.gtimg.com/sports/soccerdata/soccerdata/images/team/140/t%s.jpg'
+        # TODO:
+        #   更新数据库和collection
         club_template = self.client['football'].get_collection('clubs')
         urls = []
         for doc in club_template.find({}, {'_id':0, 'id': 1}):
@@ -57,8 +61,6 @@ class ImgQqSpider(scrapy.Spider):
     def parse(self, response):
         """
         """
-        if 200 != response.status:
-            return
         file_name = response.url.split('/')[-1]
         with open(file_name, 'w') as fd:
             fd.write(response.body)
