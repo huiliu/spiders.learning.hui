@@ -45,7 +45,7 @@ class ImgQqSpider(scrapy.Spider):
         """
             抓取俱乐部头像
         """
-        url_tpl = 'http://mat1.gtimg.com/sports/soccerdata/soccerdata/images/team/140/t%s.jpg'
+        url_tpl = 'http://mat1.gtimg.com/sports/soccerdata/soccerdata/images/team/140/t%s.png'
         # TODO:
         #   更新数据库和collection
         club_template = self.client['football'].get_collection('clubs')
