@@ -19,8 +19,9 @@ class ImgQqSpider(scrapy.Spider):
     def __init__(self):
         self.client = pymongo.MongoClient('10.1.0.6', 27017)
 
-        urls = self._generate_player_icon_url()
-        urls += self._generate_club_icon_url()
+        #urls = self._generate_player_icon_url()
+        #urls += self._generate_club_icon_url()
+        urls = self._generate_club_icon_url()
         #print(urls)
         self.start_urls = set(urls)
 
@@ -45,7 +46,7 @@ class ImgQqSpider(scrapy.Spider):
         """
             抓取俱乐部头像
         """
-        url_tpl = 'http://mat1.gtimg.com/sports/soccerdata/soccerdata/images/team/140/t%s.png'
+        url_tpl = 'http://mat1.gtimg.com/sports/soccerdata/images/team/140/t%s.png'
         # TODO:
         #   更新数据库和collection
         club_template = self.client['football'].get_collection('clubs')
@@ -55,7 +56,7 @@ class ImgQqSpider(scrapy.Spider):
             if url not in urls:
                 urls.append(url)
 
-        print urls
+        return urls
 
 
     def parse(self, response):

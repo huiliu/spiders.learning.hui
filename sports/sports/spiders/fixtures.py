@@ -83,7 +83,6 @@ class JsonQqSpider(scrapy.Spider):
         if club_list:
             PersistDb.insert_many("clubs", club_list)
 
-        return
         # 迭代其它日期的比赛
         for row in body['fixtureTimeList']['timelist']:
             yield scrapy.Request(self.url_tpl % (row['date'], body['compid']))
