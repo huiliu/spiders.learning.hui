@@ -65,7 +65,7 @@ def main():
                     p['name'] = pos[2]
                     p['score'] = 0
                     p['mid'] = competition_id
-                    gPlayerScore.append(rules.rules_score(p, away_g))
+                    gPlayerScore.append(rules.calc_score(p, away_g))
                     gPlayers[p['id']] = {
                             'id': int(p['id'].lstrip('p')),
                             'name': p['name'],
@@ -83,7 +83,7 @@ def main():
                     p['name'] = pos[2]
                     p['score'] = 0
                     p['mid'] = competition_id
-                    gPlayerScore.append(rules.rules_score(p, home_g))
+                    gPlayerScore.append(rules.calc_score(p, home_g))
                     gPlayers[p['id']] = {
                             'id': int(p['id'].lstrip('p')),
                             'name': p['name'],
