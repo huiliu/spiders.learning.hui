@@ -4,9 +4,12 @@
 # 从腾讯网站
 # 1.    抓取足球联赛赛程信息，对于历史赛事包含比赛结果
 # 2.    提取俱乐部列表
+# 3.    抓取指定日期之后的某联赛赛程
+#       scrapy crawl fixtures -a start_date=2016-07-31 -a match_type=208
 # ------------------------------------------------
 import scrapy
 import PersistMongo
+import datetime
 
 # TODO:
 #   更新数据库相关信息
@@ -21,30 +24,24 @@ PersistDb = PersistMongo.Persist(dbcfg)
 class JsonQqSpider(scrapy.Spider):
     name = "fixtures"
     allowed_domains = ["soccerdata.sports.qq.com"]
-    start_urls = (
-        # 英超
-        'http://soccerdata.sports.qq.com/s/fixture/list.action?time=2010-08-14&compid=8',
-        # 德甲
-        'http://soccerdata.sports.qq.com/s/fixture/list.action?time=2010-08-21&compid=22',
-        # 意甲
-        'http://soccerdata.sports.qq.com/s/fixture/list.action?time=2010-08-29&compid=21',
-        # 法甲
-        'http://soccerdata.sports.qq.com/s/fixture/list.action?time=2010-08-08&compid=24',
-        # 西甲
-        'http://soccerdata.sports.qq.com/s/fixture/list.action?time=2010-08-29&compid=23',
-        # 中超
-        'http://soccerdata.sports.qq.com/s/fixture/list.action?time=2012-03-10&compid=208',
-        # 欧联
-        'http://soccerdata.sports.qq.com/s/fixture/list.action?time=2014-09-19&compid=6',
-        # 欧冠
-        'http://soccerdata.sports.qq.com/s/fixture/list.action?time=2010-09-15&compid=5',
-        # 亚冠
-        'http://soccerdata.sports.qq.com/s/fixture/list.action?time=2013-02-26&compid=605',
-    )
+    start_urls = ()
     url_tpl = 'http://soccerdata.sports.qq.com/s/fixture/list.action?time=%s&compid=%s'
-
+    season_kickoff_date = None
     clubs_id = list()
 
+    def __init__(self, start_date, match_type):
+        self.season_kickoff_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+        init_url = self.generate_url(start_date, match_type)
+        self.start_urls = set([init_url])
+
+    def generate_url(self, start_date, compid):
+        d = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+        assert self.season_kickoff_date
+        # 过虑掉指定日期之前的赛程
+        if self.season_kickoff_date and d < self.season_kickoff_date:
+            return None
+        else:
+            return self.url_tpl % (start_date, compid)
 
     def parse(self, response):
         null = None
@@ -57,6 +54,7 @@ class JsonQqSpider(scrapy.Spider):
             item['date'] = body['time']
             fixture_list.append(item)
 
+        # 某天的赛事列表
         if fixture_list:
             PersistDb.insert_many("fixtures", fixture_list)
 
@@ -85,4 +83,6 @@ class JsonQqSpider(scrapy.Spider):
 
         # 迭代其它日期的比赛
         for row in body['fixtureTimeList']['timelist']:
-            yield scrapy.Request(self.url_tpl % (row['date'], body['compid']))
+            url = self.generate_url(row['date'], body['compid'])
+            if url:
+                yield scrapy.Request(url)
