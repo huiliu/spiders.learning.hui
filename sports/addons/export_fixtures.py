@@ -54,7 +54,7 @@ def export(src, dst, condition):
 
     content = []
     content_classify = dict()
-    for record in src.find({'compid':'8', 'season':'2010'}):
+    for record in src.find(condition):
         start_time = datetime.datetime.strptime("%s %s" % (record['date'], record['time']), "%Y-%m-%d %H:%M").strftime('%s')
 
         if record['date'] in content_classify:
