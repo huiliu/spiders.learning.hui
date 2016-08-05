@@ -32,7 +32,7 @@ import pymongo
 }
 """
 
-class Football:
+class FootballRule:
     """足球球员得分计算规则"""
         
     @staticmethod
@@ -100,11 +100,7 @@ class Football:
     
         #print("%s: %d" %(record['name'], record['score']))
     
-        return {
-                'id': int(record['id'].lstrip('p')),
-                'score': record['score'],
-                'mid' : record['mid']
-                }
+        return record['score']
 
     @staticmethod
     def get_player_position(uid, data):
@@ -121,7 +117,7 @@ class Football:
                 return (player['status'], player['posi'], player['name'])
         return None
 
-class Basketball:
+class BasketballRule:
     pass
 
 def test():
@@ -145,14 +141,14 @@ def test():
         home_player_data = []
         for player in home_player_stat:
             p = player
-            pos = Football.get_player_position(player['id'], home_player_list)
+            pos = FootballRule.get_player_position(player['id'], home_player_list)
             if pos and 3 == len(pos):
                 p['status'] = pos[0]
                 p['posi'] = pos[1]
                 p['name'] = pos[2]
                 p['score'] = 0
                 p['mid'] = cur['mid']
-                Football.calc_score(scoreRule, p, away_g)
+                FootballRule.calc_score(scoreRule, p, away_g)
                 print(p['score'])
                 
         break
