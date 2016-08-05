@@ -30,6 +30,9 @@ class Persist:
             print("failed insert into mongodb! because data")
             return
         self.db[tbl].insert_many(data)
+
+    def get_record(self, tbl, condition, Filter):
+        return self.db[tbl].find(condition, Filter)
         
 class PersistLiveData:
     def __init__(self, cfg):
