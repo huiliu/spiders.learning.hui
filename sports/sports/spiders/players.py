@@ -16,7 +16,7 @@
 from __future__ import print_function
 import scrapy
 from addons import player
-from addons import getclubs
+from addons import clubs
 import codecs
 
 
@@ -43,8 +43,8 @@ class ScrapyFootballPlayer(scrapy.Spider):
         if tid:
             urls.append(self.url_tpl % int(tid))
         else:
-            dbconfg = getclubs.DBConfig()
-            for cid in getclubs.get_clubs_id(dbconfg):
+            dbconfg = clubs.DBConfig()
+            for cid in clubs.get_clubs_id(dbconfg):
                 urls.append(self.url_tpl % int(cid)) 
 
         self.start_urls = set(urls)
