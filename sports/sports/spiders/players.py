@@ -17,7 +17,7 @@ from __future__ import print_function
 import scrapy
 from addons import player
 from addons import clubs
-import codecs
+from addons import enum
 
 
 class ScrapyFootballPlayer(scrapy.Spider):
@@ -52,9 +52,7 @@ class ScrapyFootballPlayer(scrapy.Spider):
     def close(self, reason):
         """爬虫关闭时将玩家数据写到硬盘
         """
-        data = player.PlayerTemplate % ''.join(self.entries)
-        codecs.open(self.output, 'w', encoding='utf-8').write(data)
-
+        player.export_player_template(self.entries, self.output)
         return super(ScrapyFootballPlayer, self).close(self, reason)
 
     def parse(self, response):
@@ -83,5 +81,5 @@ class ScrapyFootballPlayer(scrapy.Spider):
             players.append(p)
         
         # 玩家信息一直保存在内存中直到爬虫关闭才会写入至硬盘
-        data = player.export_player_template(players, player.ST_FOOTBALL)
+        data = player.generate_player_template_item(players, enum.ST_FOOTBALL)
         self.entries.extend(data)

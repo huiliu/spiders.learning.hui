@@ -7,6 +7,9 @@
 #
 # -----------------------------------------------------------------------------
 
+import enum
+import codecs
+
 PlayerTemplate =\
 """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <LocalDatas xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -29,8 +32,6 @@ PlayerEntryTemplate ="""
                 <player_position>%d</player_position>
             </entry>"""
 
-ST_FOOTBALL = 1                         #足球
-ST_BASKETBALL = 2                       #篮球
 
 def get_position(sport_type, posi):
     """返回球员位置的枚举值
@@ -47,13 +48,13 @@ def get_position(sport_type, posi):
                 u'门将': 4
             }
 
-    if ST_FOOTBALL == sport_type:
+    if enum.ST_FOOTBALL == sport_type:
         if posi in football_position:
             return football_position[posi]
         else:
             assert False
             return 0
-    elif ST_BASKETBALL == ST_BASKETBALL:
+    elif enum.ST_BASKETBALL == sport_type:
         assert False
         pass
 
@@ -68,20 +69,26 @@ def get_img_url(sport_type, oid):
     football_img_url_template = 'http://mat1.gtimg.com/sports/soccerdata/images/player/%d.jpg'
     basketball_img_url_template = 'http://mat1.gtimg.com/sports/soccerdata/images/player/%d.jpg'
 
-    if ST_FOOTBALL == sport_type:
+    if enum.ST_FOOTBALL == sport_type:
         return football_img_url_template % int(oid)
-    elif ST_BASKETBALL == sport_type:
+    elif enum.ST_BASKETBALL == sport_type:
         assert False
         pass
 
-def export_player_template(players, sport_type):
-    """TODO: Docstring for export_player_template.
+def export_player_template(entries, output):
+    """导出球员模板表
+    """
+    data = PlayerTemplate % ''.join(entries)
+    codecs.open(output, 'w', encoding='utf-8').write(data)
+
+
+def generate_player_template_item(players, sport_type):
+    """生成球员模板表记录
 
     :players:           由爬虫抓取，经简单剥离后的球员数据
 
     :returns: TODO
     """
-    print(sport_type, type(sport_type))
     stype = int(sport_type) << 28
     entries = []
     for player in players:
@@ -99,7 +106,8 @@ def export_player_template(players, sport_type):
                     get_position(sport_type, player['posi'])
                 ) 
         except Exception as e:
-            print(e, uid, player['name'])
+            print(e)
+            print("uid: %d name: %s" %( uid, player['name']))
             continue
 
         entries.append(entry)
