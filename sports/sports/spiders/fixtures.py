@@ -1,15 +1,20 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# ------------------------------------------------
+# -----------------------------------------------------------------------------
 # 从腾讯网站
 # 1.    抓取足球联赛赛程信息，对于历史赛事包含比赛结果
 # 2.    提取俱乐部列表
 # 3.    抓取指定日期之后的某联赛赛程
+#
+# usage:
 #       scrapy crawl fixtures -a start_date=2016-07-31 -a match_type=208
-# ------------------------------------------------
+# -----------------------------------------------------------------------------
 import scrapy
 import PersistMongo
 import datetime
+from addons import clubs
+from addons import enum
 
 # TODO:
 #   更新数据库相关信息
@@ -21,13 +26,14 @@ dbcfg = {
 
 PersistDb = PersistMongo.Persist(dbcfg)
 
-class JsonQqSpider(scrapy.Spider):
+class FixtureSpider(scrapy.Spider):
     name = "fixtures"
     allowed_domains = ["soccerdata.sports.qq.com"]
     start_urls = ()
     url_tpl = 'http://soccerdata.sports.qq.com/s/fixture/list.action?time=%s&compid=%s'
     season_kickoff_date = None
-    clubs_id = list()
+    clubs_id_wipe = list()
+    clubs_data = list()
 
     def __init__(self, start_date, match_type):
         self.season_kickoff_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
@@ -43,11 +49,16 @@ class JsonQqSpider(scrapy.Spider):
         else:
             return self.url_tpl % (start_date, compid)
 
+    def close(self, reason):
+        """爬虫关闭时的一些操作
+        """
+        clubs.export_team_template(self.clubs_data, "TeamTemplate.xml")
+        return super(FixtureSpider, self).close(self, reason)
+
     def parse(self, response):
         null = None
         body = eval(response.body)
         fixture_list = list()
-        club_list = list()
 
         # 处理赛程信息
         for item in body['fixtureList']['tlist']:
@@ -64,22 +75,21 @@ class JsonQqSpider(scrapy.Spider):
             # 处理俱乐部信息
             for item in body['fixtureList']['tlist']:
                 # 只记主场，因为一个赛季所有的球队都会坐阵主场
-                tid = item['homeid'].lstrip('t')
-                tname = item['homename'].lstrip('t')
+                tid = item['awayid'].lstrip('t')
+                tname = item['awayname']
+                #tid = item['homeid'].lstrip('t')
+                #tname = item['homename']
                 season = item['season']
 
-                if tid not in self.clubs_id:
-                    self.clubs_id.append(tid)
+                if tid not in self.clubs_id_wipe:
+                    self.clubs_id_wipe.append(tid)
 
-                    club_data = dict()
-                    club_data['id'] = tid
-                    club_data['name'] = tname
-                    club_data['season'] = season            #   赛季
-                    club_data['compid'] = body['compid']    #   所属联赛
-                    club_list.append(club_data)
-
-        if club_list:
-            PersistDb.insert_many("clubs", club_list)
+                    c = dict()
+                    c['id'] = tid
+                    c['name'] = tname.decode('utf-8')
+                    data = clubs.generate_team_template_entry(c,
+                                                            enum.ST_FOOTBALL)
+                    self.clubs_data.append(data)
 
         # 迭代其它日期的比赛
         for row in body['fixtureTimeList']['timelist']:

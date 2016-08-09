@@ -19,10 +19,10 @@ config = {
             'host': '10.1.0.6',
             'port': 27017,
             'db': 'football',
-            'fixture': 'fixtures',  # 赛程collection
-            'match': 'mid',         # 比赛详细统计collection
-            'players_score': 'players_score',
-            'players_template': 'players_template'
+            'fixture': 'fixtures',                      # 赛程collection
+            'match': 'mid',                             # 比赛详细统计collection
+            'players_score': 'players_score',           # 存放球员得分
+            'players_template': 'players_template'      # 球员模板表
         }
 
 db = PersistMongo.Persist(config)

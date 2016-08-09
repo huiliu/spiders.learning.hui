@@ -6,43 +6,76 @@
 # 获取赛程中的球队ID列表
 #
 # Usage:
-#       pythone getclubs.py
+#       pythone clubs.py
 #
 # ------------------------------------------------------------------------------
 
 import pymongo
-import argparse
+import enum
+import codecs
 
-def parse_cmd_options():
-    parser = argparse.ArgumentParser(description="从赛程表中提取球队ID")
-    parser.add_argument(
-                '--host', default='10.1.0.6',
-                help='MongoDB服务器IP default: %(default)s'
-            )
-    parser.add_argument(
-                '-p', '--port', default=27017, type=int,
-                help='MongoDB服务器端口 default: %(default)s'
-            )
-    parser.add_argument(
-                '-d', '--database', default='football',
-                help='MongoDB数据库名字 default: %(default)s'
-            )
-    parser.add_argument(
-                '-c', '--collection', default='fixtures',
-                help='MongoDB数据库集合名字 default: %(default)s'
-            )
-    parser.add_argument(
-                '--compid', default=208, type=int,
-                help='联赛类型 default: %(default)s'
-            )
-    parser.add_argument(
-                '-s', '--season', default=2016, type=int,
-                help='赛季 default: %(default)s'
-            )
+TeamTemplate =\
+"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<LocalDatas xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <LocalData>
+        <g_TeamTemplate>
+            %s
+        </g_TeamTemplate>
+    </LocalData>
+</LocalDatas>
+"""
 
-    args = parser.parse_args()
+TeamEntryTemplate = """
+            <entry>
+                <ID>%d</ID>
+                <team_id>%d</team_id>
+                <team_name>%s</team_name>
+                <team_type>%d</team_type>
+                <sport_type>%d</sport_type>
+                <team_logo_id>%s</team_logo_id>
+            </entry>"""
 
-    return args
+def get_img_url(sport_type, tid):
+    """返回球队LOGO的URL
+    """
+
+    football_img_url_template = 'http://mat1.gtimg.com/sports/soccerdata/images/team/140/t%d.png'
+    basketball_img_url_template = 'http://mat1.gtimg.com/sports/soccerdata/images/team/140/t%d.png'
+
+    if enum.ST_FOOTBALL == sport_type:
+        return football_img_url_template % tid
+    elif enum.ST_BASKETBALL == sport_type:
+        assert False
+        return basketball_img_url_template % tid
+
+def export_team_template(entries, output):
+    """将模板表写到磁盘
+    """
+    data = TeamTemplate % ''.join(entries)
+    codecs.open(output, 'w', encoding='utf-8').write(data)
+
+
+def generate_team_template_entry(data, sport_type):
+
+    stype = int(sport_type) << 28
+    tid = int(data['id'])
+    oid = tid | stype
+
+    try:
+        entry = TeamEntryTemplate % (
+                    oid,
+                    oid,
+                    data['name'],
+                    enum.TT_CLUB,
+                    sport_type,
+                    get_img_url(sport_type, tid)
+                )
+    except Exception as e:
+        print(e)
+        print('id: %d, name:%s' % (tid, data['name']))
+        return ""
+
+    return entry
 
 class DBConfig:
     """连接MongoDB服务器的相关参数
@@ -78,7 +111,7 @@ def get_clubs_id(args):
     return [c[1:] for c in clubs]
 
 def main():
-    args = parse_cmd_options()
+    args = DBConfig()
     data = get_clubs_id(args)
 
     print(','.join(data))
