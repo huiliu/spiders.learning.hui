@@ -9,10 +9,10 @@
 #   python export_fixtures.py --help
 #
 #   导出英超2016/2017赛季赛程数据到8_2017.xml
-#   python export_fixtures.py -h 10.1.0.6 -p 27017 -d football -c fixtures -m 8 -s 2017 -o 8_2017.xml
+#   python export_fixtures.py -h 10.1.0.6 -p 27017 -d football -c fixtures -m 8 -s 2016 -o 8_2016.xml
 #
 #   OR
-#   python export_fixtures.py --config config.ini -o 8_2017.xml
+#   python export_fixtures.py --config config.ini
 #   
 #
 ################################################################################
@@ -22,6 +22,7 @@ import codecs
 import datetime
 import argparse
 import sys
+import common
 
 # 比赛类型
 SPORT_TYPE = 1
@@ -32,29 +33,29 @@ DOCUMENT = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 %s
 </ns1:Document>
 """
-ROW_TEMPLATE = """<ns1:db_match_schedule N_match_id="%s" N_match_type="%s" N_sport_type="%s" N_match_round="%s" N_match_start_time="%s" N_match_valide_time="%s" N_home_id="%s" N_away_id="%s" N_home_score="%s" N_away_score="%s"/>"""
+ROW_TEMPLATE = """<ns1:db_match_schedule N_match_id="%d" N_match_type="%d" N_sport_type="%s" N_match_round="%s" N_match_start_time="%s" N_match_valide_time="%s" N_home_id="%d" N_away_id="%d" N_home_score="%s" N_away_score="%s"/>"""
 
-def load_config(cfgfile='config.ini'):
-    fd = codecs.open(cfgfile, 'r', encoding='utf-8')
-    cfg = ConfigParser()
-    cfg.readfp(fd)
-    cfg_dict = dict()
-    for k, v in cfg.items('mongo'):
-        cfg_dict[k] = v
-    for k, v in cfg.items('condition'):
-        cfg_dict[k] = v
+class ConfigFile:
+    """docstring for ConfigFile:"""
+    def __init__(self, cfgfile="config.ini"):
+        fd = codecs.open(cfgfile, 'r', encoding='utf-8')
+        self.cfg = ConfigParser()
+        self.cfg.readfp(fd)
+    def __getattr__(self, name):
+        try:
+            return self.cfg.get('main', name)
+        except Exception as e:
+            return None
 
-    return cfg_dict
-
-def export(src, dst, condition):
-    if not (src and dst):
+def export(collection, condition, output):
+    if not (collection and output):
         print("数据错误!")
         assert False
         return
 
     content = []
     content_classify = dict()
-    for record in src.find(condition):
+    for record in collection.find(condition):
         start_time = datetime.datetime.strptime("%s %s" % (record['date'], record['time']), "%Y-%m-%d %H:%M").strftime('%s')
 
         if record['date'] in content_classify:
@@ -62,7 +63,7 @@ def export(src, dst, condition):
             if int(start_time) < content_classify[record['date']][1]:
                 content_classify[record['date']][1] = int(start_time)
         else:
-            content_classify[record['date']] = ([record], int(start_time))
+            content_classify[record['date']] = [[record], int(start_time)]
 
     for k, v in content_classify.iteritems():
         # 最早开赛前30分钟
@@ -76,22 +77,27 @@ def export(src, dst, condition):
                 homescore = record['homescore']
                 awayscore = record['awayscore']
 
+            mid = int(record['id'])
+            mid = common.generate_uid(mid, SPORT_TYPE)
+            homeid = common.generate_uid(int(record['homeid'][1:]), SPORT_TYPE)
+            awayid = common.generate_uid(int(record['awayid'][1:]), SPORT_TYPE)
+
             row = ROW_TEMPLATE % (
-                        record['id'],
-                        record['compid'],
+                        mid,
+                        int(record['compid']),
                         str(SPORT_TYPE),
                         record['round'],
                         start_time,
                         #record['date'],
                         valide_time,
-                        record['homeid'][1:],
-                        record['awayid'][1:],
+                        homeid,
+                        awayid,
                         homescore,
                         awayscore
                     )
             content.append(row)
 
-    open(dst,'w').write(DOCUMENT % '\n'.join(content))
+    open(output,'w').write(DOCUMENT % '\n'.join(content))
 
 def parse_cmd_options():
     parser = argparse.ArgumentParser(
@@ -118,13 +124,17 @@ def parse_cmd_options():
                 '--config', help='从文件中读取配置信息。'
             )
     parser.add_argument(
+                '-t', '--type', default=1,
+                help='体育类型。1:足球. default: %(default)s'
+            )
+    parser.add_argument(
                 '-m', '--match', help='联赛类型。208:中超'
             )
     parser.add_argument(
                 '-s', '--season', help='赛季'
             )
     parser.add_argument(
-                '-o', '--output', required=True,
+                '-o', '--output', default="FixturesTemplate.xml",
                 help='输出文件名.'
             )
 
@@ -137,45 +147,27 @@ def parse_cmd_options():
 
 def main():
 
-    host       = None
-    port       = 27017
-    db         = None
-    collection = None
     condition = dict()
-
     args = parse_cmd_options()
+
+    if args.config:
+        # 如果有指定配置文件，则优先使用配置文件
+        args = ConfigFile(args.config)
+
+    SPORT_TYPE = args.type
 
     if args.match:
         condition['compid'] = args.match
     if args.season:
         condition['season'] = args.season
 
-    if args.config:
-        # 如果有指定配置文件，则优先使用配置文件
-        cfg        = load_config()
-
-        host       = cfg['host']
-        port       = int(cfg['port'])
-        db         = cfg['db']
-        collection = cfg['collection']
-
-        if 'compid' in cfg:
-            condition['compid'] = cfg['compid']
-        if 'season' in cfg:
-            condition['season'] = cfg['season']
-    else:
-        host       = args.host
-        port       = args.port
-        db         = args.db
-        collection = args.collection
-
     col = None
-    if host and port and db and collection:
-        client = pymongo.MongoClient(host, port)
-        database = client.get_database(db)
-        col = database.get_collection(collection)
+    if args.host and args.port and args.db and args.collection:
+        client = pymongo.MongoClient(args.host, int(args.port))
+        database = client.get_database(args.db)
+        col = database.get_collection(args.collection)
 
-    export(col, args.output, condition)
+        export(col, condition, args.output)
 
 if '__main__' == __name__:
     main()
