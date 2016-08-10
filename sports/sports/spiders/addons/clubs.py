@@ -18,8 +18,7 @@ TeamTemplate =\
 """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <LocalDatas xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <LocalData>
-        <g_TeamTemplate>
-            %s
+        <g_TeamTemplate>%s
         </g_TeamTemplate>
     </LocalData>
 </LocalDatas>
@@ -77,17 +76,6 @@ def generate_team_template_entry(data, sport_type):
 
     return entry
 
-class DBConfig:
-    """连接MongoDB服务器的相关参数
-    """
-
-    host       = '10.1.0.6'     # 服务器IP
-    port       = 27017          # 服务器端口
-    database   = 'football'     # 数据库名
-    collection = 'fixtures'     # 集合名
-    compid     = None           # 联赛类型
-    season     = '2016'         # 赛季
-
 
 def get_clubs_id(args):
     client = pymongo.MongoClient(args.host, args.port)
@@ -110,11 +98,23 @@ def get_clubs_id(args):
 
     return [c[1:] for c in clubs]
 
-def main():
+def test():
+    class DBConfig:
+        """连接MongoDB服务器的相关参数
+        """
+    
+        host       = '10.1.0.6'     # 服务器IP
+        port       = 27017          # 服务器端口
+        database   = 'football'     # 数据库名
+        collection = 'fixtures'     # 集合名
+        compid     = None           # 联赛类型
+        season     = '2016'         # 赛季
+
     args = DBConfig()
     data = get_clubs_id(args)
 
     print(','.join(data))
+    print(len(data))
 
 if '__main__' == __name__:
-    main()
+    test()
