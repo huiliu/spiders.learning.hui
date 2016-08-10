@@ -33,7 +33,7 @@ DOCUMENT = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 %s
 </ns1:Document>
 """
-ROW_TEMPLATE = """<ns1:db_match_schedule N_match_id="%d" N_match_type="%d" N_sport_type="%s" N_match_round="%s" N_match_start_time="%s" N_match_valide_time="%s" N_home_id="%d" N_away_id="%d" N_home_score="%s" N_away_score="%s"/>"""
+ROW_TEMPLATE = """<ns1:db_match_schedule N_match_id="%d" N_match_type="%d" N_sport_type="%s" N_match_round="%s" N_match_start_time="%s" N_match_valide_time="%s" N_home_id="%d" N_away_id="%d" N_home_score="%d" N_away_score="%d"/>"""
 
 class ConfigFile:
     """docstring for ConfigFile:"""
@@ -72,10 +72,14 @@ def export(collection, condition, output):
 
             now = datetime.datetime.now().strftime('%s')
             start_time = datetime.datetime.strptime("%s %s" % (record['date'], record['time']), "%Y-%m-%d %H:%M").strftime('%s')
-            homescore = awayscore = '-1'
+            homescore = awayscore = -1
             if int(now) > int(start_time):
-                homescore = record['homescore']
-                awayscore = record['awayscore']
+                try:
+                    homescore = int(record['homescore'])
+                    awayscore = int(record['awayscore'])
+                except Exception as e:
+                    print("%s 比赛有结果有误!")
+                    pass
 
             mid = int(record['id'])
             mid = common.generate_uid(mid, SPORT_TYPE)

@@ -40,14 +40,14 @@ class FixtureSpider(scrapy.Spider):
         assert match_type
 
         self.season_kickoff_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
-        init_url = self.generate_url(start_date, match_type)
+        init_url = self.url_tpl % (start_date, match_type)
         self.start_urls = set([init_url])
 
     def generate_url(self, start_date, compid):
         d = datetime.datetime.strptime(start_date, '%Y-%m-%d')
         assert self.season_kickoff_date
         # 过虑掉指定日期之前的赛程
-        if self.season_kickoff_date and d < self.season_kickoff_date:
+        if self.season_kickoff_date and d <= self.season_kickoff_date:
             return None
         else:
             return self.url_tpl % (start_date, compid)
