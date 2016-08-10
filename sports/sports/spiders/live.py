@@ -6,6 +6,11 @@
 # 进而可以算得此场赛事中球员的得分
 #
 #   默认抓取明后天的比赛的结果
+#
+# usage:
+#       scrapy crawl live [-a mid=847873]
+#   抓取指定比赛的直接数据
+#
 # ------------------------------------------------
 import scrapy
 import PersistMongo
@@ -37,10 +42,11 @@ class QqLiveSpider(scrapy.Spider):
     url_tpl = 'http://soccerdata.sports.qq.com/s/live.action?mid=%s'
 
     def __init__(self, mid=None):
+        urls = []
         if mid:
             # 查询指定的比赛
-            url = url_tpl % str(mid)
-            self.start_urls = set([url])
+            urls.append(self.url_tpl % str(mid))
+            #self.start_urls = set([url])
         else:
             # 查询赛程表中昨天的比赛
             now = datetime.datetime.today()
@@ -49,14 +55,11 @@ class QqLiveSpider(scrapy.Spider):
             condition = dict()
             condition['date'] = (now - delta_day).strftime("%Y-%m-%d")
 
-            urls = []
             Filter = {'_id': 0, 'id': 1}
             for match in db.get_record(config['fixture'], condition, Filter):
                 #if match['id'] not in match_ids:
                 urls.append(self.url_tpl % match['id'])
 
-            print(urls, condition)
-        return
         self.start_urls = set(urls)
 
     def parse(self, response):
@@ -65,7 +68,6 @@ class QqLiveSpider(scrapy.Spider):
         null = None
         try:
             data = eval(response.body)
-            print(data)
             db.insert_one(config['match'], data)
 
             Calc = calc_core.FootballCalc(score_rules.NormalScoreRule())

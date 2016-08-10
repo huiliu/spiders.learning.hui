@@ -36,6 +36,9 @@ class FixtureSpider(scrapy.Spider):
     clubs_data = list()
 
     def __init__(self, start_date, match_type):
+        assert start_date
+        assert match_type
+
         self.season_kickoff_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
         init_url = self.generate_url(start_date, match_type)
         self.start_urls = set([init_url])
