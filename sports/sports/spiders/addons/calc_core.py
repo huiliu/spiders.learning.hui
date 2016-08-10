@@ -9,18 +9,31 @@
 # -----------------------------------------------------------------------------
 
 import rules
+import enum
+import common
+import codecs
+import datetime
 
 class FootballCalc:
+    """计算足球比赛球员得分
     """
-    """
-    def __init__(self, score_rule):
+    PlayerMatchScoreTemplate = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns1:Document xmlns:ns1="http://viivgame.cn/schema/db_match_schedule.xsd">
+%s
+</ns1:Document>"""
+
+    PlayerMatchScoreEntryTemplate = """\t<ns1:player_match_score N_player_id="%d" N_match_id="%d" N_score="%.2f"/>"""
+
+    def __init__(self, score_rule, output):
         """TODO: Docstring for __init__.
 
         :score_rule:    得分计算规则
+        :output:        输出文件名
         """
         self.scoreRule = score_rule
         self.calcRule = rules.FootballRule
-
+        self.output = output
+        self.sportType = enum.ST_FOOTBALL
 
     def calc_one_match(self, live_data):
         """计算某场比赛的球员得分
@@ -59,6 +72,47 @@ class FootballCalc:
     
         return (players_score, players_template)
 
+    def export_playerscore_template(self, data):
+        """导出球员得分模板表
+        """
+        entries = []
+        for record in data:
+            entry = self.PlayerMatchScoreEntryTemplate % (
+                        common.generate_uid(record['id'], self.sportType),
+                        common.generate_uid(record['mid'], self.sportType),
+                        record['score']
+                    )
+            entries.append(entry)
+
+        codecs.open(self.output, 'w', encoding='utf-8').write(
+                    self.PlayerMatchScoreTemplate % '\n'.join(entries)
+                )
+
+    def export_playerscore_to_db(self, data, tbl, cursor):
+        """将球员得分数据导入到数据库中
+
+        :data:      赛事球员得分数据
+        :cursor:    数据库游标
+        """
+        SQLTemplate = "INSERT INTO %s (player_id, match_id, score, match_start_time) VALUES %s"
+
+        now = datetime.datetime.now().strftime("%s")
+        scores = []
+        for record in data:
+            score = '(%d, %d, %.2f, %d)' % (
+                        common.generate_uid(record['id'], self.sportType),
+                        common.generate_uid(record['mid'], self.sportType),
+                        record['score'],
+                        now
+                    )
+            scores.append(score)
+
+        sql = SQLTemplate % (tbl, ','.join(values))
+        cursor.execute(sql)
+
+    def export_playervalues_to_db(self):
+        pass
+
     def _calc_players_score(self, players_show_data, player_list, home_id, lost_score):
         """计算球员们的得分
     
@@ -85,7 +139,7 @@ class FootballCalc:
                             {
                                 'id': int(p['id'].lstrip('p')),
                                 'mid': self.mid,
-                                'score': score
+                                'score': score,
                             }
                         )
                 # 球员信息
@@ -100,5 +154,5 @@ class FootballCalc:
 
 
 class BasketballCalc:
-    def __init__(self, score_rule):
+    def __init__(self, score_rule, output):
         pass

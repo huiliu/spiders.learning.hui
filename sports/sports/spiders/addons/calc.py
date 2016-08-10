@@ -16,29 +16,43 @@
 # ----------------------------------------------------------------------------
 
 import pymongo
+import sys
 import datetime
 import argparse
 import score_rules
 import calc_core
-
-MT_FOOTBALL = 1
-MT_BASKETBALL = 2
-
-SR_NORMAL_FOOTBALL = 1
-SR_OLYPICS_FOOTBALL = 2
-
-SR_NORMAL_BASKETBALL = 11
-SR_OLYPICS_BASKETBALL = 12
+import enum
 
 def parse_cmd_options():
     """解析命令行参数
     """
     parser = argparse.ArgumentParser(description="计算球员得分")
     parser.add_argument(
-            '-t', '--type', type=int, help="运动类型.(1:足球;2:篮球)", default=1
+                '--host', default="10.1.0.6",
+                help="Mongo服务器IP. default: %(default)s"
+            )
+    parser.add_argument(
+                '-p', '--port', type=int, default=27017,
+                help="Mongo服务器端口. default: %(default)s"
+            )
+    parser.add_argument(
+                '-d', '--database', default="football",
+                help="数据库名. default: %(default)s"
+            )
+    parser.add_argument(
+                '-c', '--collection', default="mid",
+                help="collection名. default: %(default)s"
+            )
+    parser.add_argument(
+            '-t', '--type', type=int, default=1,
+            help="运动类型.(1:足球;2:篮球) default: %(default)s", 
             )
     parser.add_argument(
                 '-r', '--rule', type=int, help="得分计算规则", default=1
+            )
+    parser.add_argument(
+                '-o', '--output', help="输入到文件. default: %(default)s",
+                default="PlayerMatchScoreTemplate.xml"
             )
     parser.add_argument(
             'mid', type=int, help="赛事ID (default: 默认计算所有)"
@@ -47,45 +61,56 @@ def parse_cmd_options():
     args = parser.parse_args()
 
     # 解析命令行参数
-    condition = {}
     scoreRule = None
     Calc = None
 
-    condition['mid'] = str(args.mid)
-
-    if SR_NORMAL_FOOTBALL == args.rule:
+    if enum.SR_NORMAL_FOOTBALL == args.rule:
         scoreRule = score_rules.NormalScoreRule()
-    elif SR_OLYPICS_FOOTBALL == args.rule:
+    elif enum.SR_OLYPICS_FOOTBALL == args.rule:
         scoreRule = score_rules.OlypicsScoreRule()
     else:
         assert False
         return None
 
-    if MT_FOOTBALL == args.type:
-        Calc = calc_core.FootballCalc(scoreRule)
-    elif MT_BASKETBALL == args.type:
-        Calc = calc_core.BasketballCalc(scoreRule)
+    if enum.ST_FOOTBALL == args.type:
+        Calc = calc_core.FootballCalc(scoreRule, args.output)
+    elif enum.ST_BASKETBALL == args.type:
+        Calc = calc_core.BasketballCalc(scoreRule, args.output)
     else:
         assert False
         return None
 
-    return (Calc, condition)
+    condition = {}
+    condition['mid'] = str(args.mid)
+
+    collection = get_collection(args)
+
+    return (Calc, collection.find(condition))
+
+def get_collection(arg):
+    """返回collection对象
+
+    :arg:       与数据库相关的配置
+    :returns:   collection对象
+
+    """
+    try:
+        client = pymongo.MongoClient(arg.host, arg.port)
+        football = client.get_database(arg.database)
+        mid = football.get_collection(arg.collection)
+
+        return mid
+    except Exception as e:
+        sys.exit(e)
 
 def main():
 
-    Calc, condition = parse_cmd_options()
+    scores = list()
+    Calc, records = parse_cmd_options()
 
-    client = pymongo.MongoClient('10.1.0.6', 27017)
-    football = client.football_2016
-    mid = football.get_collection('mid')
-
-    #player_score = football.get_collection('player_score')
-    #player_template = football.get_collection('player_template')
-
-    records = mid.find(condition)
     if records and records.count() >= 1:
         if records.count() > 1:
-            print("有点不对劲哦，这场比赛怎么有两条记录！")
+            print("有点不对劲哦，这场比赛怎么有两条记录！\n只计算了其中一条记录的得分，请确认！")
         record = records[0]
 
         now_time = datetime.datetime.now().strftime('%s')
@@ -96,11 +121,11 @@ def main():
             return
 
         result = Calc.calc_one_match(record)
-
+        scores.extend(result[0])
         for item in result[0]:
             print(item)
-        for item in result[1]:
-            print(item)
+
+    Calc.export_playerscore_template(scores)
 
 if __name__ == '__main__':
     main()
