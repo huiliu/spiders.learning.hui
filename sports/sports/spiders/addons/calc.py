@@ -52,7 +52,7 @@ def parse_cmd_options():
             )
     parser.add_argument(
                 '-o', '--output', help="输入到文件. default: %(default)s",
-                default="PlayerMatchScoreTemplate.xml"
+                default="db_player_matchscore.xml"
             )
     parser.add_argument(
             'mid', type=int, help="赛事ID (default: 默认计算所有)"
@@ -71,6 +71,8 @@ def parse_cmd_options():
     else:
         assert False
         return None
+
+    args.output = '%s.xml' % args.mid
 
     if enum.ST_FOOTBALL == args.type:
         Calc = calc_core.FootballCalc(scoreRule, args.output)
@@ -97,9 +99,9 @@ def get_collection(arg):
     try:
         client = pymongo.MongoClient(arg.host, arg.port)
         football = client.get_database(arg.database)
-        mid = football.get_collection(arg.collection)
+        collection = football.get_collection(arg.collection)
 
-        return mid
+        return collection
     except Exception as e:
         sys.exit(e)
 
