@@ -22,6 +22,7 @@ import codecs
 import datetime
 import argparse
 import sys
+import enum
 import common
 
 # 比赛类型
@@ -47,11 +48,34 @@ class ConfigFile:
         except Exception as e:
             return None
 
-def export(collection, condition, output):
-    if not (collection and output):
-        print("数据错误!")
+def export_fixtures_to_template(args):
+
+    condition = dict()
+    try:
+        if args.match:
+            condition['compid'] = str(args.match)
+    except Exception as e:
+        pass
+    try:
+        if args.season:
+            condition['season'] = str(args.season)
+    except Exception as e:
+        pass
+
+    sport_type = enum.ST_FOOTBALL
+    try:
+        sport_type = int(args.type)
+    except Exception as e:
+        pass
+
+    if not(args.host and args.port and args.db and args.collection):
         assert False
+        print("导出赛程失败！")
         return
+
+    client = pymongo.MongoClient(args.host, int(args.port))
+    database = client.get_database(args.db)
+    collection = database.get_collection(args.collection)
 
     content = []
     content_classify = dict()
@@ -82,14 +106,14 @@ def export(collection, condition, output):
                     pass
 
             mid = int(record['id'])
-            mid = common.generate_uid(mid, SPORT_TYPE)
-            homeid = common.generate_uid(int(record['homeid'][1:]), SPORT_TYPE)
-            awayid = common.generate_uid(int(record['awayid'][1:]), SPORT_TYPE)
+            mid = common.generate_uid(mid, sport_type)
+            homeid = common.generate_uid(int(record['homeid'][1:]), sport_type)
+            awayid = common.generate_uid(int(record['awayid'][1:]), sport_type)
 
             row = ROW_TEMPLATE % (
                         mid,
                         int(record['compid']),
-                        str(SPORT_TYPE),
+                        str(sport_type),
                         record['round'],
                         start_time,
                         #record['date'],
@@ -101,7 +125,7 @@ def export(collection, condition, output):
                     )
             content.append(row)
 
-    open(output,'w').write(DOCUMENT % '\n'.join(content))
+    open(args.output,'w').write(DOCUMENT % '\n'.join(content))
 
 def parse_cmd_options():
     parser = argparse.ArgumentParser(
@@ -138,7 +162,7 @@ def parse_cmd_options():
                 '-s', '--season', help='赛季'
             )
     parser.add_argument(
-                '-o', '--output', default="FixturesTemplate.xml",
+                '-o', '--output', default="db_match_schedules.xml",
                 help='输出文件名.'
             )
 
@@ -151,27 +175,13 @@ def parse_cmd_options():
 
 def main():
 
-    condition = dict()
     args = parse_cmd_options()
 
     if args.config:
         # 如果有指定配置文件，则优先使用配置文件
         args = ConfigFile(args.config)
 
-    SPORT_TYPE = args.type
-
-    if args.match:
-        condition['compid'] = args.match
-    if args.season:
-        condition['season'] = args.season
-
-    col = None
-    if args.host and args.port and args.db and args.collection:
-        client = pymongo.MongoClient(args.host, int(args.port))
-        database = client.get_database(args.db)
-        col = database.get_collection(args.collection)
-
-        export(col, condition, args.output)
+    export_fixtures_to_template(args)
 
 if '__main__' == __name__:
     main()

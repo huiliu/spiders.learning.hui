@@ -8,13 +8,15 @@
 # 3.    抓取指定日期之后的某联赛赛程
 #
 # usage:
-#       scrapy crawl fixtures -a start_date=2016-07-31 -a match_type=208
+#       scrapy crawl fixtures -a start_date=2016-07-31 -a match_type=208\
+#                                                                   -a export=1
 # -----------------------------------------------------------------------------
 import scrapy
 import PersistMongo
 import datetime
 from addons import clubs
 from addons import enum
+from addons import fixtures
 
 # TODO:
 #   更新数据库相关信息
@@ -26,6 +28,25 @@ dbcfg = {
 
 PersistDb = PersistMongo.Persist(dbcfg)
 
+class ExportConfig:
+    """导出赛程表配置
+    """
+    host = "10.1.0.6"
+    port = 27017
+    user = ""
+    passwd = ""
+    db = 'football'
+    collection = 'fixtures'
+    # 体育类型
+    # SPORT_TYPE
+    type = 1
+    # 联赛类型。来自腾讯数据中的类型
+    # MATCH_TYPE
+    #match = 8
+    # 赛季
+    season = 2016
+    output = 'db_match_schedule.xml'
+
 class FixtureSpider(scrapy.Spider):
     name = "fixtures"
     allowed_domains = ["soccerdata.sports.qq.com"]
@@ -35,9 +56,10 @@ class FixtureSpider(scrapy.Spider):
     clubs_id_wipe = list()
     clubs_data = list()
 
-    def __init__(self, start_date, match_type):
+    def __init__(self, start_date, match_type, export=None):
         assert start_date
         assert match_type
+        self.export = export
 
         self.season_kickoff_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
         init_url = self.url_tpl % (start_date, match_type)
@@ -55,7 +77,13 @@ class FixtureSpider(scrapy.Spider):
     def close(self, reason):
         """爬虫关闭时的一些操作
         """
+        # 导出球队模板表
         clubs.export_team_template(self.clubs_data, "TeamTemplate.xml")
+        if self.export:
+            # 导出赛程模板表
+            cfg = ExportConfig()
+            fixtures.export_fixtures_to_template(cfg)
+
         return super(FixtureSpider, self).close(self, reason)
 
     def parse(self, response):

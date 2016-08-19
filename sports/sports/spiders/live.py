@@ -48,7 +48,7 @@ class QqLiveSpider(scrapy.Spider):
             urls.append(self.url_tpl % str(mid))
             #self.start_urls = set([url])
         else:
-            # 查询赛程表中昨天的比赛
+            # 默认查询赛程表中昨天(以运行脚本所在机器时间)的比赛
             now = datetime.datetime.today()
             delta_day = datetime.timedelta(1)
 

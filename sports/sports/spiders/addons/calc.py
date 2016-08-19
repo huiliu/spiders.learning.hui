@@ -48,6 +48,10 @@ def parse_cmd_options():
             help="运动类型.(1:足球;2:篮球) default: %(default)s", 
             )
     parser.add_argument(
+            '--tpl', default="PlayerTemplate_table.xml", required=True,
+            help="球员模板表 default: %(default)s", 
+            )
+    parser.add_argument(
                 '-r', '--rule', type=int, help="得分计算规则", default=1
             )
     parser.add_argument(
@@ -75,7 +79,7 @@ def parse_cmd_options():
     args.output = '%s.xml' % args.mid
 
     if enum.ST_FOOTBALL == args.type:
-        Calc = calc_core.FootballCalc(scoreRule, args.output)
+        Calc = calc_core.FootballCalc(scoreRule, args.tpl, args.output)
     elif enum.ST_BASKETBALL == args.type:
         Calc = calc_core.BasketballCalc(scoreRule, args.output)
     else:
@@ -124,8 +128,8 @@ def main():
 
         result = Calc.calc_one_match(record)
         scores.extend(result[0])
-        for item in result[0]:
-            print(item)
+        #for item in result[0]:
+        #    print(item)
 
     Calc.export_playerscore_template(scores)
 

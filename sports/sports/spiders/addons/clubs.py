@@ -98,18 +98,45 @@ def get_clubs_id(args):
 
     return [c[1:] for c in clubs]
 
-def test():
-    class DBConfig:
-        """连接MongoDB服务器的相关参数
-        """
-    
-        host       = '10.1.0.6'     # 服务器IP
-        port       = 27017          # 服务器端口
-        database   = 'football'     # 数据库名
-        collection = 'fixtures'     # 集合名
-        compid     = None           # 联赛类型
-        season     = '2016'         # 赛季
+class DBConfig:
+    """连接MongoDB服务器的相关参数
+    """
 
+    host       = '10.1.0.6'     # 服务器IP
+    port       = 27017          # 服务器端口
+    database   = 'football'     # 数据库名
+    collection = 'fixtures'     # 集合名
+    compid     = None           # 联赛类型
+    season     = '2016'         # 赛季
+
+def main(arg):
+    """导出球队模板表
+    """
+    client = pymongo.MongoClient(args.host, args.port)
+    db = client.get_database(args.database)
+    collection = db.get_collection(args.collection)
+
+    condition = dict()
+    if args.compid:
+        condition['compid'] = str(args.compid)
+    if args.season:
+        condition['season'] = str(args.season)
+
+    clubs = []
+    entries = []
+    for record in collection.find(condition, {'_id': 0, 'homeid': 1, 'homename': 1, 'awayid': 1, 'awayname': 1}):
+        if record['homeid'] not in clubs:
+            clubs.append(record['homeid'])
+            entry = generate_team_template_entry({'id': record['homeid'][1:], 'name': record['homename']}, enum.ST_FOOTBALL)
+            entries.append(entry)
+        if record['awayid'] not in clubs:
+            clubs.append(record['awayid'])
+            entry = generate_team_template_entry({'id': record['awayid'][1:], 'name': record['awayname']}, enum.ST_FOOTBALL)
+            entries.append(entry)
+
+    export_team_template(entries, 'TeamTemplate_table.xml')
+
+def test():
     args = DBConfig()
     data = get_clubs_id(args)
 
@@ -117,4 +144,6 @@ def test():
     print(len(data))
 
 if '__main__' == __name__:
-    test()
+
+    args = DBConfig()
+    main(args)

@@ -3,7 +3,15 @@
 
 # 一些通用规则
 
+BITWISE_COUNT = 28
+
 import enum
+
+def get_uid(oid, sport_type):
+    """反解析得到id
+    """
+    return oid & ((sport_type << BITWISE_COUNT) - 1)
+    pass
 
 def generate_uid(oid, sport_type):
     """生成唯一ID
@@ -14,7 +22,7 @@ def generate_uid(oid, sport_type):
     :return:        返回一个唯一ID
     """
     assert isinstance(oid, int)
-    return oid | (sport_type << 28)
+    return oid | (sport_type << BITWISE_COUNT)
 
 def get_football_postion(posi):
     """返回足球球员位置的枚举值
